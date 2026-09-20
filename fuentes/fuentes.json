@@ -1,0 +1,30 @@
+[
+  [
+    "Diagrama oficial ODD",
+    "https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/assets/diagrams/odd-cycle.svg"
+  ],
+  [
+    "Diagrama oficial RDD",
+    "https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/assets/diagrams/rdd-review.svg"
+  ],
+  [
+    "Orquestación oficial",
+    "https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/docs/assets/diagrams/agent-orchestration.svg"
+  ],
+  [
+    "Protocolo ODD",
+    "https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md"
+  ],
+  [
+    "Worker y TDD",
+    "https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/agents/gentle-ai-worker.md"
+  ],
+  [
+    "Contrato RDD",
+    "https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/review-integration.md"
+  ],
+  [
+    "Verificación alternativa",
+    "https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/docs/delegated-verification.md"
+  ]
+]

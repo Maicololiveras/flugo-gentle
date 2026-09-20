@@ -1,0 +1,1113 @@
+[
+  {
+    "id": "texto",
+    "title": "01 · Un cambio pequeño",
+    "subtitle": "Una petición clara. Sin preguntas artificiales.",
+    "defaults": {},
+    "events": [
+      {
+        "id": "texto-1",
+        "type": "user",
+        "actor": "Tú",
+        "text": "Corrige «Exportar archibo» en la ayuda del reporte.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "texto-2",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Voy a localizar el texto y corregir solo esa palabra.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "tools"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "texto-3",
+        "type": "tool",
+        "actor": "read / git diff",
+        "text": "docs/reportes.md · localizada la errata. Un archivo pasivo, cambio comprendido.",
+        "phase": "ODD",
+        "route": [
+          "tools",
+          "parent"
+        ],
+        "duration": 5,
+        "details": {
+          "ruta": "docs/reportes.md",
+          "alcance": "una palabra",
+          "estado": "lectura completada"
+        }
+      },
+      {
+        "id": "texto-4",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Es una corrección pequeña. Puedo hacerla directamente; no necesito delegar ni crear un documento de tareas.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "texto-5",
+        "type": "tool",
+        "actor": "edit",
+        "text": "Exportar archibo → Exportar archivo",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "tools"
+        ],
+        "duration": 5,
+        "details": {
+          "archivo": "docs/reportes.md",
+          "cambio": "sustitución puntual",
+          "TDD": "excepción documental; sin comportamiento ejecutable"
+        }
+      },
+      {
+        "id": "texto-6",
+        "type": "tool",
+        "actor": "Gentle AI · review assess",
+        "text": "completed · passive · lectura estructural · 0 perspectivas de revisión",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5,
+        "details": {
+          "risk": "passive",
+          "review_due": false,
+          "review_due_reason": "passive",
+          "evidencia": "contenido y diff inspeccionados"
+        }
+      },
+      {
+        "id": "texto-7",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Corregido. Revisé el texto final y el diff. No cambié el comportamiento del programa.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "texto-8",
+        "type": "end",
+        "actor": "Resultado",
+        "text": "El usuario pidió un cambio claro. El padre lo resolvió sin inventar preguntas ni lanzar subagentes.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 6
+      }
+    ]
+  },
+  {
+    "id": "csv",
+    "title": "02 · CSV con una duda del worker",
+    "subtitle": "Padre ↔ subagente ↔ usuario, TDD, memoria y revisión.",
+    "defaults": {
+      "scope": "filtrados",
+      "review": "yes"
+    },
+    "events": [
+      {
+        "id": "csv-1",
+        "type": "user",
+        "actor": "Tú",
+        "text": "Añade un botón para exportar los reportes a CSV. Usa el flujo actual.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 6
+      },
+      {
+        "id": "csv-2",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Voy a explorar cómo se construye el reporte. Hay varios archivos involucrados; delego esa exploración.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-3",
+        "type": "delegate",
+        "actor": "gentle-ai-explore",
+        "text": "Mapear reporte, filtros y permisos. Solo lectura. Devolver rutas y decisiones pendientes.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "csv-map",
+        "details": {
+          "agent": "gentle-ai-explore",
+          "mode": "background (si política habilitada)",
+          "objetivo": "exploración acotada",
+          "escritura": "no autorizada",
+          "responsable": "padre"
+        }
+      },
+      {
+        "id": "csv-4",
+        "type": "child",
+        "actor": "gentle-ai-explore",
+        "text": "Leo ReportView, ReportViewModel, ReportService, filtros, permisos y pruebas.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "csv-map",
+        "note": "Este trabajo ocurre en el contexto del subagente; el padre no vuelve a leer todo."
+      },
+      {
+        "id": "csv-5",
+        "type": "result",
+        "actor": "gentle-ai-explore",
+        "text": "completed · 6 archivos inspeccionados. El flujo admite exportación; hay dos alcances posibles.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "csv-map",
+        "details": {
+          "status": "completed",
+          "summary": "puntos de integración identificados",
+          "decisión": "filtrados o todos los reportes accesibles",
+          "files_changed": []
+        }
+      },
+      {
+        "id": "csv-6",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "La funcionalidad necesita varias tareas. Dejo el objetivo, las restricciones y los criterios en un documento ODD.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "memory"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-7",
+        "type": "tool",
+        "actor": "write + mem_save",
+        "text": "odd/tasks/export-csv.md guardado; espejo completo en odd/export-csv/tasks. Lectura de comprobación realizada.",
+        "phase": "ODD",
+        "route": [
+          "memory",
+          "parent"
+        ],
+        "duration": 5,
+        "details": {
+          "archivo": "odd/tasks/export-csv.md",
+          "tareas": [
+            "definir alcance",
+            "formatear CSV",
+            "integrar botón",
+            "verificar"
+          ],
+          "TDD": "activo por configuración",
+          "runner": "dotnet test --filter Csv"
+        }
+      },
+      {
+        "id": "csv-8",
+        "type": "delegate",
+        "actor": "gentle-ai-worker",
+        "text": "Implementar CSV. Leer documento y skills indicadas; respetar superficies permitidas; devolver evidencia.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "csv-write",
+        "details": {
+          "agent": "gentle-ai-worker",
+          "tarea": "exportación CSV",
+          "allowed_edit_surfaces": [
+            "ReportViewModel.cs",
+            "CsvExporter.cs",
+            "CsvTests.cs"
+          ],
+          "TDD": "on · configuración del proyecto",
+          "runner": "dotnet test --filter Csv",
+          "criterio": "mantener permisos actuales"
+        }
+      },
+      {
+        "id": "csv-9",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "Antes de editar encuentro una decisión de producto: exportar lo filtrado o todos los reportes accesibles.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "csv-write"
+      },
+      {
+        "id": "csv-10",
+        "type": "result",
+        "actor": "gentle-ai-worker",
+        "text": "interaction_required · necesito una decisión de alcance; no he escrito código.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "csv-write",
+        "status": "interaction_required",
+        "details": {
+          "status": "interaction_required",
+          "files_changed": [],
+          "interaction_required": {
+            "question": "¿Qué registros debe incluir el CSV?",
+            "reason": "ambas rutas existen y cambian el resultado",
+            "options": [
+              "Solo los filtrados",
+              "Todos los accesibles"
+            ],
+            "unblock_response": "alcance elegido por el usuario"
+          }
+        }
+      },
+      {
+        "id": "csv-11",
+        "type": "question",
+        "actor": "Padre",
+        "text": "El worker encontró dos comportamientos posibles. ¿Qué registros debe incluir el CSV?",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 7,
+        "key": "scope",
+        "options": [
+          {
+            "value": "filtrados",
+            "label": "Solo los filtrados"
+          },
+          {
+            "value": "todos",
+            "label": "Todos los accesibles"
+          }
+        ],
+        "note": "El padre transmite la decisión; el subagente no elige por el usuario."
+      },
+      {
+        "id": "csv-12",
+        "type": "user",
+        "actor": "Tú",
+        "text": "Quiero {{scopeLabel}}. Mantén los permisos actuales.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-13",
+        "type": "tool",
+        "actor": "ODD · actualizar intención",
+        "text": "Alcance aceptado: {{scopeLabel}}. Actualizo tareas y espejo antes de continuar.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "memory"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-14",
+        "type": "delegate",
+        "actor": "gentle-ai-worker",
+        "text": "Continuar con el alcance confirmado: {{scopeLabel}}. Mismo contrato, superficies y runner.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "csv-write-2",
+        "details": {
+          "respuesta": "{{scopeLabel}}",
+          "estado": "nueva ejecución acotada con contexto actualizado",
+          "documento": "odd/tasks/export-csv.md",
+          "TDD": "activo"
+        }
+      },
+      {
+        "id": "csv-15",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "RED · escribo y ejecuto un test: exportar {{scopeLabel}}. Falla por el comportamiento ausente.",
+        "phase": "TDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "csv-write-2",
+        "details": {
+          "comando": "dotnet test --filter Csv",
+          "RED": "fallo esperado observado",
+          "nota": "resultado de demostración, no ejecución real"
+        }
+      },
+      {
+        "id": "csv-16",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "GREEN · implemento lo mínimo y repito el test. El comportamiento esperado pasa.",
+        "phase": "TDD",
+        "route": [
+          "tools",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "csv-write-2"
+      },
+      {
+        "id": "csv-17",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "TRIANGULATE · comillas, comas y lista vacía. REFACTOR · separo formateador y vuelvo a probar.",
+        "phase": "TDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "csv-write-2",
+        "details": {
+          "casos": [
+            "selección de registros",
+            "escape de comillas",
+            "lista vacía"
+          ],
+          "resultado": "pruebas focalizadas verdes"
+        }
+      },
+      {
+        "id": "csv-18",
+        "type": "wait",
+        "actor": "Runtime de Pi",
+        "text": "agent_end conserva la respuesta; el padre espera agent_settled antes de tratar la tarea como terminada.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "csv-write-2",
+        "note": "En background el resultado llega por evento. No se simula polling de finalización."
+      },
+      {
+        "id": "csv-19",
+        "type": "result",
+        "actor": "gentle-ai-worker",
+        "text": "completed · exportación implementada y pruebas focalizadas reportadas. Resultado entregado al padre.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "csv-write-2",
+        "details": {
+          "status": "completed",
+          "files_changed": [
+            "ReportViewModel.cs",
+            "CsvExporter.cs",
+            "CsvTests.cs"
+          ],
+          "tdd_evidence": [
+            "RED observado",
+            "GREEN observado",
+            "casos alternos y refactor verdes"
+          ],
+          "validation": [
+            "dotnet test --filter Csv: pasa en la simulación"
+          ],
+          "risks": []
+        }
+      },
+      {
+        "id": "csv-20",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Compruebo el resultado y una prueba reportada. Registro evidencia y progreso; el commit de unidad requiere autorización del repo.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "tools"
+        ],
+        "duration": 5,
+        "details": {
+          "autorización del ejemplo": "commits de unidad permitidos",
+          "push / PR": "aún no autorizados"
+        }
+      },
+      {
+        "id": "csv-21",
+        "type": "tool",
+        "actor": "Gentle AI · review assess",
+        "text": "completed · medium · tramo ilustrativo de 420 líneas · review_due: true",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5,
+        "details": {
+          "risk": "medium",
+          "changed_lines": 420,
+          "review_due": true,
+          "review_due_reason": "slice_budget_reached",
+          "next_transition": "continuación nativa, sin inventar tokens"
+        }
+      },
+      {
+        "id": "csv-22",
+        "type": "tool",
+        "actor": "Gentle AI · STATUS / START",
+        "text": "Se sigue la transición nativa. El candidato se congela con su identidad; se presenta el consentimiento aplicable.",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "native"
+        ],
+        "duration": 5,
+        "details": {
+          "binding": "lineage + revision + target emitidos por el motor",
+          "contexto": "árboles inmutables",
+          "nota": "no se usan identificadores falsos ejecutables"
+        }
+      },
+      {
+        "id": "csv-23",
+        "type": "question",
+        "actor": "Padre",
+        "text": "Este candidato requiere una revisión focalizada. ¿Quieres ejecutarla ahora?",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 7,
+        "key": "review",
+        "options": [
+          {
+            "value": "yes",
+            "label": "Revisar ahora"
+          },
+          {
+            "value": "no",
+            "label": "Ahora no"
+          }
+        ],
+        "note": "Opciones didácticas: no reproducen un sobre nativo literal."
+      },
+      {
+        "id": "csv-24",
+        "type": "user",
+        "actor": "Tú",
+        "text": "{{reviewLabel}}.",
+        "phase": "RDD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-25",
+        "type": "tool",
+        "actor": "Gentle AI · review",
+        "text": "running · una perspectiva sobre el candidato congelado. El host Pi transporta el resultado al motor.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "worker"
+        ],
+        "duration": 5,
+        "when": {
+          "review": "yes"
+        },
+        "details": {
+          "perspectivas": 1,
+          "fuente": "candidato congelado",
+          "autoridad": "motor nativo"
+        }
+      },
+      {
+        "id": "csv-26",
+        "type": "tool",
+        "actor": "Gentle AI · resultado + ACK",
+        "text": "completed · aprobado en el ejemplo; ACK exacto consumido. La revisión no hace push ni abre PR.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5,
+        "when": {
+          "review": "yes"
+        }
+      },
+      {
+        "id": "csv-27",
+        "type": "tool",
+        "actor": "Gentle AI · verificación alternativa",
+        "text": "Revisión declinada para este candidato. Riesgo medio: conservar evidencia del escritor y comprobación del padre.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5,
+        "when": {
+          "review": "no"
+        },
+        "details": {
+          "review": "no ejecutado",
+          "modo global": "sin cambio",
+          "verificador extra": "si el escritor usa perfil mini/bajo esfuerzo"
+        }
+      },
+      {
+        "id": "csv-28",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Listo: el CSV exporta {{scopeLabel}} y respeta permisos. Pruebas reportadas y documento actualizado. {{reviewOutcome}}",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "csv-29",
+        "type": "end",
+        "actor": "Resultado",
+        "text": "Una duda del worker viajó al padre y al usuario. La respuesta volvió al worker con contexto; el padre integró evidencia y cierre.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 7
+      }
+    ]
+  },
+  {
+    "id": "auth",
+    "title": "03 · Riesgo alto y corrección",
+    "subtitle": "La revisión encuentra un defecto; el padre conduce un arreglo acotado.",
+    "defaults": {
+      "review": "yes"
+    },
+    "events": [
+      {
+        "id": "auth-1",
+        "type": "user",
+        "actor": "Tú",
+        "text": "Evita que un usuario vea reportes de otra empresa. Puedes hacer commits de esta tarea, pero no publiques.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-2",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Exploro autorización, consulta y caché. El alcance es aislamiento entre empresas; una edición pequeña puede tener alto riesgo.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "tools"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-3",
+        "type": "tool",
+        "actor": "write + mem_save",
+        "text": "ODD registrado: criterio de aislamiento, superficies acotadas, pruebas y siguiente paso.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "memory"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-4",
+        "type": "delegate",
+        "actor": "gentle-ai-worker",
+        "text": "Corregir aislamiento. TDD activo. Probar acceso propio, ajeno y ausencia de tenant.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "auth-write",
+        "details": {
+          "surfaces": [
+            "Authorization.cs",
+            "ReportService.cs",
+            "TenantTests.cs"
+          ],
+          "criterio": "usuario de A no accede a B",
+          "runner": "dotnet test --filter Tenant",
+          "alcance": "sin rediseño general"
+        }
+      },
+      {
+        "id": "auth-5",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "RED reproduce acceso cruzado; GREEN añade validación; TRIANGULATE cubre casos alternos; REFACTOR mantiene pruebas verdes.",
+        "phase": "TDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 7,
+        "task": "auth-write"
+      },
+      {
+        "id": "auth-6",
+        "type": "result",
+        "actor": "gentle-ai-worker",
+        "text": "completed · validación de empresa añadida; evidencia focalizada devuelta al padre.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "auth-write",
+        "details": {
+          "status": "completed",
+          "validation": [
+            "dotnet test --filter Tenant: pasa en el ejemplo"
+          ],
+          "risk": "la prueba focalizada no demuestra ausencia de otros defectos"
+        }
+      },
+      {
+        "id": "auth-7",
+        "type": "tool",
+        "actor": "Gentle AI · review assess",
+        "text": "completed · high · señal de autorización · review_due: true, aunque el diff sea pequeño.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-8",
+        "type": "tool",
+        "actor": "Gentle AI · STATUS / START",
+        "text": "Candidato congelado; se respeta el consentimiento concedido para este ejemplo. Plan de cuatro perspectivas.",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "native"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-9",
+        "type": "delegate",
+        "actor": "4R · Risk / Resilience / Readability / Reliability",
+        "text": "running · cuatro revisores sobre la misma versión, en paralelo cuando lo admite el runtime.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "four-r",
+        "details": {
+          "Risk": "abuso y exposición",
+          "Resilience": "fallos y recuperación",
+          "Readability": "claridad",
+          "Reliability": "corrección",
+          "contexto": "misma identidad congelada"
+        }
+      },
+      {
+        "id": "auth-10",
+        "type": "child",
+        "actor": "Revisor · Risk",
+        "text": "Hallazgo: la clave de caché no incluye la empresa. Dos tenants podrían compartir una respuesta.",
+        "phase": "RDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "four-r"
+      },
+      {
+        "id": "auth-11",
+        "type": "result",
+        "actor": "4R",
+        "text": "Hallazgos y evidencias vuelven al motor nativo. Una afirmación aún debe contrastarse.",
+        "phase": "RDD",
+        "route": [
+          "worker",
+          "native"
+        ],
+        "duration": 5,
+        "task": "four-r"
+      },
+      {
+        "id": "auth-12",
+        "type": "tool",
+        "actor": "Gentle AI · refutación",
+        "text": "El refutador contrasta la afirmación; el caso de caché queda sustentado en este ejemplo.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "worker"
+        ],
+        "duration": 5,
+        "details": {
+          "claim": "caché sin tenant",
+          "evidencia": "misma clave con empresas distintas",
+          "resultado": "defecto sustentado"
+        }
+      },
+      {
+        "id": "auth-13",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Hay un defecto dentro del alcance: la clave de caché. Aplico una corrección acotada siguiendo la transición nativa.",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-14",
+        "type": "delegate",
+        "actor": "Corrección acotada",
+        "text": "Un lote: incluir tenant en la clave y añadir el caso de regresión. Respetar el presupuesto y superficies nativos.",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "fix-cache"
+      },
+      {
+        "id": "auth-15",
+        "type": "child",
+        "actor": "Worker de corrección",
+        "text": "Pruebo dos empresas con el mismo ID, reproduzco la fuga y corrijo la clave. La prueba focalizada pasa.",
+        "phase": "TDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "fix-cache"
+      },
+      {
+        "id": "auth-16",
+        "type": "result",
+        "actor": "Worker de corrección",
+        "text": "completed · corrección y evidencia devueltas. El candidato corregido tiene una nueva identidad.",
+        "phase": "RDD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "fix-cache"
+      },
+      {
+        "id": "auth-17",
+        "type": "tool",
+        "actor": "Gentle AI · validación dirigida",
+        "text": "Comprueba aislamiento original y regresiones de la corrección sobre los árboles correctos.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "worker"
+        ],
+        "duration": 5,
+        "details": {
+          "criterio original": "acceso ajeno bloqueado",
+          "regresión": "acceso propio conservado",
+          "límite": "sin inspección no existe veredicto"
+        }
+      },
+      {
+        "id": "auth-18",
+        "type": "tool",
+        "actor": "Gentle AI · resultado + ACK",
+        "text": "completed · aprobado en el ejemplo; ACK consumido. No se inicia otra ronda de corrección.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-19",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "El aislamiento quedó corregido, incluida la clave de caché. Te entrego evidencia y commits de la tarea. No he publicado.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "auth-20",
+        "type": "end",
+        "actor": "Resultado",
+        "text": "El padre mantuvo el hilo. La revisión no sustituyó las pruebas y su aprobación no autorizó publicar.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 6
+      }
+    ]
+  },
+  {
+    "id": "resume",
+    "title": "04 · Retomar sin memoria disponible",
+    "subtitle": "Interrupción, estado real, relanzamiento y TDD desactivado.",
+    "defaults": {},
+    "events": [
+      {
+        "id": "resume-1",
+        "type": "user",
+        "actor": "Tú",
+        "text": "Continúa la exportación que dejamos ayer. No actives TDD; usa los checks configurados.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-2",
+        "type": "tool",
+        "actor": "read + mem_search",
+        "text": "Documento ODD recuperado. Engram no está disponible: el espejo queda pendiente.",
+        "phase": "ODD",
+        "route": [
+          "memory",
+          "parent"
+        ],
+        "duration": 5,
+        "details": {
+          "archivo": "odd/tasks/export-csv.md",
+          "memoria": "no disponible",
+          "acción": "no inventar sincronización"
+        }
+      },
+      {
+        "id": "resume-3",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "Conservo el documento local y comprobaré el código actual. La tarea del worker que estaba corriendo no se recupera como si siguiera activa.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-4",
+        "type": "tool",
+        "actor": "git diff + configuración",
+        "text": "Conciliados los cambios válidos. TDD: off por elección actual. Runner de comprobación identificado.",
+        "phase": "ODD",
+        "route": [
+          "tools",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-5",
+        "type": "delegate",
+        "actor": "gentle-ai-worker",
+        "text": "Nueva ejecución para la tarea pendiente, con contexto reconciliado. TDD off; checks funcionales obligatorios.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "resume-new",
+        "details": {
+          "tarea anterior": "interrumpida, no reclamada como viva",
+          "tarea nueva": "contexto explícito",
+          "TDD": "off · elección del usuario",
+          "runner": "dotnet test --filter Csv"
+        }
+      },
+      {
+        "id": "resume-6",
+        "type": "child",
+        "actor": "gentle-ai-worker",
+        "text": "Termino el comportamiento pendiente y ejecuto los checks focalizados. No declaro un RED/GREEN que no ocurrió.",
+        "phase": "TDD",
+        "route": [
+          "worker",
+          "tools"
+        ],
+        "duration": 5,
+        "task": "resume-new"
+      },
+      {
+        "id": "resume-7",
+        "type": "result",
+        "actor": "gentle-ai-worker",
+        "text": "completed · resultado y validación devueltos al padre. Sin ciclo TDD inventado.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "resume-new"
+      },
+      {
+        "id": "resume-8",
+        "type": "tool",
+        "actor": "Gentle AI · review mode / assess",
+        "text": "Modo efectivo: off en este ejemplo. Se evalúa riesgo sin iniciar revisión nativa.",
+        "phase": "RDD",
+        "route": [
+          "native",
+          "parent"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-9",
+        "type": "tool",
+        "actor": "Verificación alternativa",
+        "text": "Riesgo medio y escritor con perfil mini: añadir gentle-ai-verify; el padre conserva su comprobación puntual.",
+        "phase": "RDD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-10",
+        "type": "delegate",
+        "actor": "gentle-ai-verify",
+        "text": "Verificar el cambio con contexto fresco y devolver comandos observados.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "worker"
+        ],
+        "duration": 5,
+        "task": "verify-resume"
+      },
+      {
+        "id": "resume-11",
+        "type": "result",
+        "actor": "gentle-ai-verify",
+        "text": "completed · comprobaciones pasan en la simulación. Se reporta el espejo de Engram todavía pendiente.",
+        "phase": "ODD",
+        "route": [
+          "worker",
+          "parent"
+        ],
+        "duration": 5,
+        "task": "verify-resume"
+      },
+      {
+        "id": "resume-12",
+        "type": "parent",
+        "actor": "Padre",
+        "text": "La exportación está comprobada. Actualicé el documento local; Engram queda pendiente. RDD no se ejecutó porque estaba desactivado.",
+        "phase": "ODD",
+        "route": [
+          "parent",
+          "user"
+        ],
+        "duration": 5
+      },
+      {
+        "id": "resume-13",
+        "type": "end",
+        "actor": "Resultado",
+        "text": "Reanudar significa reconciliar evidencia y relanzar lo pendiente; no fingir que el worker sigue vivo.",
+        "phase": "ODD",
+        "route": [
+          "user",
+          "parent"
+        ],
+        "duration": 6
+      }
+    ]
+  }
+]

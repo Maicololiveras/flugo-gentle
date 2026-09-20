@@ -1,0 +1,2 @@
+const fs=require('fs'),path=require('path');const sharp=require(process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES ? process.env.CODEX_PRIMARY_RUNTIME_NODE_MODULES+'/sharp' : 'sharp');const dir=path.resolve(__dirname,'../escenas');
+(async()=>{const files=fs.readdirSync(dir).filter(x=>x.endsWith('.svg'));for(let k=0;k<files.length;k+=8){await Promise.all(files.slice(k,k+8).map(async f=>{await sharp(path.join(dir,f)).resize(1280,720).png().toFile(path.join(dir,f.replace('.svg','.png')))}));}console.log('Rendered',files.length,'SVG frames');})();
