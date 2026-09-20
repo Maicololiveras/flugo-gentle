@@ -1,0 +1,9 @@
+{
+  "name": "gentle-live-observer",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Local live event visualizer for Pi and Gentle Shell",
+  "files": ["extensions", "lib", "web", "README.md"],
+  "pi": { "extensions": ["./extensions/observer.ts"] },
+  "scripts": {"test": "node --test tests/*.test.mjs", "demo": "node demo.mjs"}
+}

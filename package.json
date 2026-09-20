@@ -2,12 +2,15 @@
   "name": "flugo-gentle",
   "version": "1.0.0",
   "private": true,
-  "description": "Animaci\u00f3n SVG y video de ODD, TDD y RDD con cuatro ejemplos",
+  "description": "English live event observer and ODD, TDD, RDD session demos",
   "scripts": {
     "render:svg": "node fuentes/render_svg.cjs",
     "build": "python simulador/build.py",
     "test": "node simulador/engine.test.cjs",
-    "render:video": "python simulador/render_session.py"
+    "render:video": "python simulador/render_session.py",
+    "build:live": "node live/build.mjs",
+    "test:live": "node --test live/tests/*.test.mjs",
+    "demo:live": "node live/demo.mjs"
   },
   "dependencies": {
     "sharp": "0.35.4"
