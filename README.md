@@ -22,6 +22,10 @@ Restart or reload your Gentle session, then run `/gentle-live` and open the loca
 
 Demo and Live are visibly distinct. Live shows evidence the runtime exposes; it does not fabricate private child activity, infer a review verdict, or expose private reasoning. The extension is passive and does not replace Gentle's execution or approval flow.
 
+## Gentle AI repository integration
+
+See [plugin staging](integrations/gentle-ai/README.md) and the [local-agent handoff](integrations/gentle-ai/LOCAL_AGENT_HANDOFF.md). The handoff includes remaining installer work, automated visual tests, real-session cases and acceptance evidence.
+
 ## Development
 
 ```sh

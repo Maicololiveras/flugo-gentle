@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 escenas/
 session-frames/
+live/qa-artifacts/

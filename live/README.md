@@ -70,3 +70,7 @@ Tool text may contain project data: the observer shows that text locally. Struct
 Contract references: [Pi extension events](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md), [Gentle Shell delegation implementation at 5454832](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/extensions/gentle-agents.ts). Tested without a credentialed model session; validate one real task in your installed Gentle profile before presenting it as an end-to-end runtime recording.
 
 Browser visual validation was attempted but unavailable in the build environment (Chromium was absent and its download timed out). The automated adapter tests do not replace an end-to-end model-session or browser check.
+
+## Visual acceptance
+
+From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a synthetic feed; a real model-session recording remains a separate acceptance check. See the repository integration handoff for that procedure.
