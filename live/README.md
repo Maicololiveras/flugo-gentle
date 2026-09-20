@@ -1,9 +1,11 @@
 # Gentle Live Observer
 
-An English event visualizer installed alongside Gentle Shell and Pi. Two explicit modes:
+An EN/ES event visualizer installed alongside Gentle Shell and Pi. Two real-work modes:
 
-- **Demo**: four scripted examples. No model, tools or repository operations.
-- **Live**: a local browser subscribes to observable events from your running Pi session. Questions and approvals stay in the Gentle terminal.
+- **Observer**: a local read-only browser subscribes to an existing Pi session. Questions and approvals stay in the existing terminal.
+- **Workspace**: a local browser embeds a native Pi terminal next to the live event flow. Start Pi explicitly and perform the task inside that terminal.
+
+The four scripted demos remain available for teaching without running a model or tools.
 
 ## Run on your machine
 
@@ -59,7 +61,7 @@ A child is a separate RPC process. This observer sees child information surfaced
 
 ## Local data and lifecycle
 
-The server binds only to `127.0.0.1`. The event feed requires the generated session key and rejects foreign origins and Host headers. It retains at most 500 events in memory and replays them on reconnect, notifying the browser when older history is missing. The page shows the latest 200 events. There is no persistent log, remote transport or browser-side execution endpoint.
+The server binds only to `127.0.0.1`. The event feed requires the generated session key and rejects foreign origins and Host headers. It retains at most 500 events in memory and replays them on reconnect, notifying the browser when older history is missing. The page shows the latest 200 events. There is no persistent log or remote transport. Observer has no browser execution endpoint. Workspace adds an authenticated local terminal channel for its explicitly launched Pi process.
 
 Tool text may contain project data: the observer shows that text locally. Structured credential fields, private thinking blocks and image data are omitted; arbitrary free text is not guaranteed to be secret-free. Treat the observer URL as session-local access.
 
@@ -74,3 +76,7 @@ Browser visual validation was attempted but unavailable in the build environment
 ## Visual acceptance
 
 From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a synthetic feed; a real model-session recording remains a separate acceptance check. See the repository integration handoff for that procedure.
+
+## Workspace mode
+
+For a native Pi terminal alongside the graph, install this directory’s optional dependencies with `npm install`, then run `npm run workspace -- --cwd /absolute/project`. Open the printed URL and click **Start Pi**. Targets Linux/macOS. `npm run test:workspace` performs an isolated real-Pi startup smoke without a model prompt. EN/ES uses a local dictionary and adds no model calls; native output keeps its original language. Read the repository’s `integrations/gentle-ai/TWO_MODES.md` (copied to the plugin root when staged) for lifecycle, dependency and coverage details.

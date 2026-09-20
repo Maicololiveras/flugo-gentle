@@ -2,16 +2,22 @@
 
 Continue the implementation from `Maicololiveras/flugo-gentle`, branch `feat/live-observer-english`, PR #1. The user wants an English simulator that also displays observable work from a real Gentle session, packaged for the Gentle AI repository. Finish the integration, run the browser checks, fix defects, and record evidence. Do not report success from mocked events alone.
 
+## Updated requirement: two modes and EN/ES
+
+Read [TWO_MODES.md](TWO_MODES.md) before implementation. Prefer Workspace (native Pi terminal embedded in the local browser with the live graph alongside), and preserve Observer for existing terminal sessions. EN/ES is a local UI/demo dictionary; native payloads keep their original language. No explanatory model calls may be added. Linux and macOS are the target platforms.
+
+A real isolated Pi 0.85.1 startup smoke now passes on Linux: PTY output and session_start reach the workspace. No model prompt was sent. This does not replace visual or credentialed Gentle acceptance. Nine automated tests passed after these additions.
+
 ## Current state
 
 | Area | Implemented | Remaining |
 |---|---|---|
-| English UI | Four examples, scope decision, animated SVG, responsive CSS | Inspect actual screenshots and video; fix any overlap or motion defects |
+| Bilingual UI | EN/ES dictionary, four examples, scope decision, animated SVG, responsive CSS | Inspect actual screenshots and video; fix any overlap or motion defects |
 | Pi plugin | `package.json` with `pi.extensions`, `/gentle-live` and stop | Load inside the user's installed Gentle profile; check compatibility |
 | Event bridge | Input, visible messages, tool requests/progress/results, prompts, settlement | Validate real tool payloads and any blocked-call behavior |
 | Child visibility | Parent-visible Gentle task IDs, messages, progress and results | Decide whether deeper child events are required; implement an explicit upstream bridge if so |
 | Gentle AI integration | Repeatable staging into `plugins/gentle-live-observer` | Optional install/update/uninstall workflow in Gentle AI's actual adapter/TUI |
-| Automated checks | Four observer tests and existing simulator tests passed before handoff | Run again after changes |
+| Automated checks | Nine adapter/workspace/staging/dictionary tests and existing simulator tests passed | Run again after changes |
 | Visual test runner | Playwright screenshots, recordings and JSON report | Not executed successfully here: no Chromium installation available |
 | Real session | No model credentials or runtime session used here | Required before ready-for-review |
 | Upstream | No official Gentle AI PR or approved issue established | Follow current repository contribution policy |
@@ -93,6 +99,10 @@ Create a disposable Git project with no secrets and use the user's already confi
 | Error/parallelism | Trigger a harmless failed read and simultaneous child tasks if supported | Error stays an error; separate task/call identities remain inspectable |
 
 If the model does not naturally emit a required case, report that case as not exercised and adjust a legitimate fixture or configuration. Never insert synthetic events into a recording labeled real. Keep user decisions and action authorization in the terminal.
+
+## Embedded-terminal acceptance (additional)
+
+Run `npm run test:workspace` from the plugin first. Run the actual Workspace on Linux and macOS, then verify Start Pi is required, keyboard input reaches Pi, native dialogs work, resize/Unicode are correct, reconnect does not spawn a second Pi, a second tab cannot control input, and Stop Pi terminates only the owned process. Verify EN/ES switching preserves active decisions and terminal contents, and real output is never translated by a model. Inspect whether parent messages show enough observable decision context; document anything the runtime does not expose.
 
 ## 6. Evidence and completion
 

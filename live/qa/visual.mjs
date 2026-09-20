@@ -19,6 +19,7 @@ try{
   await page.screenshot({path:new URL(`demo-${i+1}.png`,artifacts).pathname,fullPage:true});
  }
  report.checks.push('four complete English examples');
+ await page.selectOption('#language','es');await page.getByText('Sigue el intercambio.',{exact:true}).waitFor();assert.equal(await page.locator('html').getAttribute('lang'),'es');await page.screenshot({path:new URL('spanish.png',artifacts).pathname,fullPage:true});await page.selectOption('#language','en');await page.getByText('Follow the handoff.',{exact:true}).waitFor();report.checks.push('EN/ES switches locally without resetting the transcript');
  for(const scope of ['Filtered rows','All accessible rows']){
   await page.selectOption('#scenario','1');for(let n=0;n<7;n++)await page.click('#step');
   const count=await page.locator('#log .event').count();await page.click('#step');assert.equal(await page.locator('#log .event').count(),count,'Decision must block progression');

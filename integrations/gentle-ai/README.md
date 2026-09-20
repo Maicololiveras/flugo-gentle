@@ -18,3 +18,5 @@ pi install ./plugins/gentle-live-observer
 Reload your Gentle session and run `/gentle-live`. Use the URL printed by Pi.
 
 Start with [LOCAL_AGENT_HANDOFF.md](LOCAL_AGENT_HANDOFF.md) for exact implementation boundaries, installation work remaining, automated visual tests, real-session cases and evidence requirements. The package already loads through Pi; automatic discovery in Gentle AI's installer and official upstream acceptance remain pending.
+
+The preferred embedded-terminal Workspace and existing-session Observer are described in [TWO_MODES.md](TWO_MODES.md), including EN/ES, token cost and verified upstream platforms.
