@@ -1,8 +1,9 @@
 {
   "name": "gentle-live-observer",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Local live event visualizer for Pi and Gentle Shell",
+  "keywords": ["pi-package", "pi-extension", "gentle-ai", "live-observer"],
   "files": [
     "extensions",
     "lib",
