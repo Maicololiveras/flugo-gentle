@@ -7,35 +7,182 @@ An EN/ES event visualizer installed alongside Gentle Shell and Pi. Two real-work
 
 The four scripted demos remain available for teaching without running a model or tools.
 
-## Run on your machine
+> **Distribution status:** Gentle Live is currently a local package from this cloned repository. It is not published as an npm or Git package. The upstream Gentle AI community-plugin request is [Gentleman-Programming/gentle-ai#4823](https://github.com/Gentleman-Programming/gentle-ai/issues/4823); no Gentle AI pull request may be opened until that request has `status:approved`.
 
-Prerequisites: Node.js 24+, Pi with the event API used by Gentle Shell 3.3.0, and your existing Gentle Shell / Gentle AI setup. This package does not install a model or change its credentials.
+## Quick path
 
-From the cloned `flugo-gentle` repository:
+From the cloned `flugo-gentle` repository, install the local package, reload Pi, start the observer, and open the exact URL Pi prints:
 
 ```sh
 pi install ./live
+pi list
 ```
 
-Restart your existing Gentle session, or use `/reload`. In its terminal:
+Restart Pi or run `/reload`, then use:
 
 ```text
 /gentle-live
 ```
 
-Open the local URL printed by Pi. Keep the terminal and browser side by side. Ask your real task in the terminal and watch input, delegations, tool progress, results, human prompts and settlement in the browser.
+Open the complete printed loopback URL, including its generated fragment (for example, the entire `http://127.0.0.1:<port>/#<session-key>` value; do not type this placeholder). Continue normal work in the original Pi terminal. When finished:
 
 ```text
 /gentle-live stop
 ```
 
-For a temporary installation instead, launch Pi from your target project with the absolute extension path:
+## Complete guide
+
+### 1. Check prerequisites and trust the source
+
+You need:
+
+- Node.js 24 or newer.
+- Pi with the event API used by Gentle Shell 3.3.0.
+- Your existing Gentle Shell / Gentle AI setup.
+- A local clone containing this `live` directory.
+
+Gentle Live does not install a model or change model credentials. Pi packages and extensions execute code with your user account's permissions. Review this package's source before installing or launching it, especially `extensions/observer.ts`, `lib/`, and the package metadata.
+
+### 2. Choose persistent local installation or a temporary launch
+
+#### Option A — persistent local installation
+
+Use the path to this repository's `live` directory. Relative and absolute paths are both supported.
+
+POSIX shell (Linux/macOS, or WSL when Pi runs inside WSL):
+
+```sh
+pi install ./live
+# Or from another directory:
+pi install /absolute/path/to/flugo-gentle/live
+pi list
+```
+
+Windows PowerShell:
+
+```powershell
+pi install .\live
+# Or from another directory:
+pi install 'C:\absolute\path\to\flugo-gentle\live'
+pi list
+```
+
+Confirm the local package appears in `pi list`. Restart Pi so it discovers the extension, or run `/reload` in an existing Pi session.
+
+#### Option B — temporary launch without installation
+
+Start Pi from the project you want to work in and load the observer extension for that process only:
 
 ```sh
 pi -e /absolute/path/to/flugo-gentle/live/extensions/observer.ts
 ```
 
-On Windows, use a quoted Windows path. `/gentle-live` opens a loopback server on an available port; there is no fixed port to configure. If you change Pi sessions or exit, reopen the observer with `/gentle-live`; each observer instance has a fresh URL.
+Windows PowerShell:
+
+```powershell
+pi -e 'C:\absolute\path\to\flugo-gentle\live\extensions\observer.ts'
+```
+
+If a Windows launcher reports `0x80070002` or path/wrapper resolution is uncertain, resolve both paths explicitly and invoke `pi.cmd` directly:
+
+```powershell
+$pi = (Get-Command pi.cmd -ErrorAction Stop).Source
+$observer = (Resolve-Path 'C:\absolute\path\to\flugo-gentle\live\extensions\observer.ts').Path
+& $pi -e $observer
+```
+
+Windows Terminal is not required; PowerShell in any suitable terminal is enough.
+
+### 3. Start and connect the Observer
+
+1. In the Pi terminal, run `/gentle-live`.
+2. Pi prints `Open the live observer in your browser:` followed by a loopback URL.
+3. Copy and open that **exact, complete** URL. It has the form `http://127.0.0.1:<port>/#<session-key>`; the port and fragment are generated values. Never substitute the example markers or omit/redact the fragment.
+4. Wait for **LIVE · CONNECTED** in the browser. This means the browser's local event stream is connected. A **Session connected** event means the observer received Pi's session start or switch event; neither label means that a model task has completed.
+5. Keep the browser and original terminal side by side. Enter prompts, answer questions, and approve actions in the original terminal. The Observer is a read-only view of that normal workflow.
+
+Use the EN/ES selector in the browser to change interface labels. The selection is stored locally, uses a local dictionary, does not reset the transcript, preserves unmatched/native output in its original language, and makes no additional model call.
+
+If the browser reconnects, buffered events are replayed when available. Each Observer URL is session-local: changing Pi sessions or exiting invalidates the old lifecycle, so run `/gentle-live` again and open the newly printed complete URL. Do not reuse or share the old URL.
+
+### 4. Stop the Observer
+
+In the same Pi session, run:
+
+```text
+/gentle-live stop
+```
+
+Pi reports `Live observer stopped.` Closing only the browser tab does not stop the local server; use the command when the Pi session remains open.
+
+### 5. Optional Workspace mode
+
+Workspace embeds a native Pi terminal beside the graph. It requires the optional local dependencies and a working native PTY toolchain for the target environment.
+
+- **Targets:** Linux and macOS.
+- **Windows native:** **NOT APPLICABLE** by current design. Use Observer mode on native Windows.
+- **WSL2:** validated under Ubuntu WSL2 x86_64, but this is not native Linux hardware/distro acceptance.
+
+From the cloned repository:
+
+```sh
+cd live
+npm install
+npm run workspace -- --cwd /absolute/path/to/project
+```
+
+Then:
+
+1. Open the exact complete `Gentle Workspace:` loopback URL printed in the terminal.
+2. Click **Start Pi** in the browser.
+3. Perform the task in the embedded Pi terminal. Workspace events appear beside it.
+4. Use **Stop** for the Workspace-owned Pi process, or press `Ctrl+C` in the terminal that launched Workspace to close the workspace and its Pi process.
+
+`npm run test:workspace` performs an isolated real-Pi startup smoke without a model prompt. EN/ES still uses the local dictionary and adds no model calls; native output keeps its original language.
+
+Workspace browser acceptance passed under Ubuntu WSL2 x86_64 with Pi 0.85.1, including resize, reconnect, second-tab exclusion and owned-process Stop. This is not native Linux hardware/distro acceptance. Native Linux amd64/arm64 and macOS amd64/arm64 remain **NOT RUN**; macOS PTY behavior, native dialogs and Homebrew packaging are unverified. Native Windows Workspace is **NOT APPLICABLE** by current design, while Windows Observer is validated. Read `integrations/gentle-ai/TWO_MODES.md` (copied to the plugin root when staged) for lifecycle and coverage details.
+
+### 6. Remove a persistent local installation
+
+Remove using the **exact same local package source** used for installation, then verify the result:
+
+POSIX example:
+
+```sh
+pi remove ./live
+pi list
+```
+
+Windows PowerShell example:
+
+```powershell
+pi remove .\live
+pi list
+```
+
+If installation used an absolute path, pass that same absolute path to `pi remove`. Restart Pi or run `/reload` after removal. A temporary `pi -e .../observer.ts` launch installs nothing and needs no removal; exit that Pi process when finished.
+
+## Troubleshooting
+
+### `pi`: command not found
+
+Confirm Pi is installed and that the directory containing its launcher is on `PATH`. Open a new shell after changing `PATH`, then run `pi list`. On Windows PowerShell, `Get-Command pi.cmd` should resolve the launcher; if it does, invoke the returned `.Source` path directly.
+
+### Windows launch error `0x80070002`
+
+This generally indicates a launcher/wrapper or path-resolution problem, not a requirement for Windows Terminal. Use the resolved `pi.cmd` PowerShell fallback in step 2, verify that `Resolve-Path` finds `observer.ts`, and keep paths quoted. Also confirm that you launched Pi from the intended project directory.
+
+### The URL is invalid, forbidden, or shows no live feed
+
+Do not open documentation placeholders such as `<port>` or `<session-key>`, and do not use a redacted URL. Run `/gentle-live` and copy the entire URL printed by that Pi session, including `127.0.0.1`, the allocated port, `/`, and the `#...` fragment. Treat the URL as sensitive session-local access; do not paste its key into logs, issues, screenshots, or support messages.
+
+### The browser says `DISCONNECTED · RETRYING`
+
+Keep the originating Pi session running. If it is still active, leave the page open briefly for automatic reconnect and buffered replay. If Pi exited, the session changed, or `/gentle-live stop` was used, start `/gentle-live` again and open the new complete URL. An old tab cannot attach itself to a new Observer lifecycle.
+
+### Port or key questions
+
+There is no fixed port to configure: the Observer binds an available port on `127.0.0.1`. A fresh key and URL are generated for each Observer instance. Do not manually edit, expose, or publish the key. Stop and restart the Observer to rotate both lifecycle and URL.
 
 ## Try the English examples
 
@@ -69,14 +216,10 @@ Tool text may contain project data: the observer shows that text locally. Struct
 
 `node --test live/tests/*.test.mjs` checks visible-content filtering, task identity, query status, settlement, SSE authorization/replay and the passive extension lifecycle with a mocked Pi API. `node live/build.mjs` rebuilds the standalone English demo.
 
-Contract references: [Pi extension events](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md), [Gentle Shell delegation implementation at 5454832](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/extensions/gentle-agents.ts). Tested without a credentialed model session; validate one real task in your installed Gentle profile before presenting it as an end-to-end runtime recording.
+Contract references: [Pi extension events](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md), [Gentle Shell delegation implementation at 5454832](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/extensions/gentle-agents.ts).
 
-Browser visual validation was attempted but unavailable in the build environment (Chromium was absent and its download timed out). The automated adapter tests do not replace an end-to-end model-session or browser check.
+Validation now includes 10 passing Node tests, a passing 8/8 synthetic Playwright suite, real WSL2 Workspace startup/browser checks without a model prompt, and one credentialed Windows Observer task. The real task showed actual read/edit/read activity, parent response and settlement, and made the exact intended README fix. Its complete harness is still **FAIL** because Gentle/Pi and Pi Lens created `.atl/`, `.gitignore`, and `.pi-lens-probe-home` in the disposable fixture; sanitized evidence was retained, but no raw recording was kept.
 
 ## Visual acceptance
 
-From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a synthetic feed; a real model-session recording remains a separate acceptance check. See the repository integration handoff for that procedure.
-
-## Workspace mode
-
-For a native Pi terminal alongside the graph, install this directory’s optional dependencies with `npm install`, then run `npm run workspace -- --cwd /absolute/project`. Open the printed URL and click **Start Pi**. Targets Linux/macOS. `npm run test:workspace` performs an isolated real-Pi startup smoke without a model prompt. EN/ES uses a local dictionary and adds no model calls; native output keeps its original language. Read the repository’s `integrations/gentle-ai/TWO_MODES.md` (copied to the plugin root when staged) for lifecycle, dependency and coverage details.
+From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a **synthetic** feed and passed 8/8 on Windows; they are not a substitute for the separately labeled real-task evidence. See the repository `VISUAL_QA_REPORT.md` and integration handoff for artifact classification and remaining cases.
