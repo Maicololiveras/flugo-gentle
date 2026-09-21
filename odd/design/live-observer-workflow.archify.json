@@ -1,0 +1,93 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Observable Gentle Session Handoffs",
+    "animation": "trace",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "delegation",
+        "label": "Delegation and return",
+        "focus": ["user", "parent", "subagents", "tools"],
+        "note": "Follow observable requests, delegated work, tool evidence, and returned results."
+      },
+      {
+        "id": "human-decision",
+        "label": "Human decision",
+        "focus": ["subagents", "parent", "user"],
+        "note": "A child question reaches the user through the parent and resumes with the selected answer."
+      },
+      {
+        "id": "governance",
+        "label": "Memory and review",
+        "focus": ["parent", "engram", "native_review"],
+        "note": "Show only memory and native review events emitted by the runtime."
+      }
+    ],
+    "output": "odd/design/live-observer-workflow.archify.html"
+  },
+  "lanes": [
+    { "id": "human", "label": "Human" },
+    { "id": "orchestration", "label": "Observed orchestration" },
+    { "id": "runtime", "label": "Observed runtime services" }
+  ],
+  "phases": [
+    { "id": "request", "label": "Request", "fromCol": 0, "toCol": 1 },
+    { "id": "work", "label": "Delegate and execute", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "evidence", "label": "Return observable evidence", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "groups": [
+    { "id": "active_work", "label": "Identity-bound work", "lane": "orchestration", "fromCol": 1, "toCol": 3, "variant": "emphasis" },
+    { "id": "services", "label": "Optional observed services", "lane": "runtime", "fromCol": 2, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["user", "parent", "subagents", "tools"],
+  "semanticChecks": {
+    "allowedRoots": ["user"],
+    "allowedTerminals": ["tools", "engram", "native_review"],
+    "requiredEdges": [
+      { "from": "user", "to": "parent" },
+      { "from": "parent", "to": "subagents" },
+      { "from": "subagents", "to": "tools" }
+    ],
+    "requiredPaths": [
+      { "from": "user", "to": "tools" },
+      { "from": "parent", "to": "engram" },
+      { "from": "parent", "to": "native_review" }
+    ]
+  },
+  "nodes": [
+    { "id": "user", "lane": "human", "col": 0, "type": "external", "label": "User", "sublabel": "request or decision", "width": 144 },
+    { "id": "parent", "lane": "orchestration", "col": 2, "type": "backend", "label": "Parent agent", "sublabel": "coordinates visible work", "tag": "session identity", "width": 154 },
+    { "id": "subagents", "lane": "orchestration", "col": 3, "type": "messagebus", "label": "Observed subagents", "sublabel": "one node per task identity", "tag": "taskId", "width": 168 },
+    { "id": "tools", "lane": "runtime", "col": 4, "type": "cloud", "label": "Tools", "sublabel": "one node per call identity", "tag": "toolCallId", "width": 154 },
+    { "id": "engram", "lane": "runtime", "col": 0, "type": "database", "label": "Engram", "sublabel": "observable memory calls", "width": 154 },
+    { "id": "native_review", "lane": "runtime", "col": 5, "type": "security", "label": "Native review", "sublabel": "provider-owned lifecycle", "width": 162 }
+  ],
+  "edges": [
+    { "id": "user_request", "from": "user", "to": "parent", "label": "request or answer", "variant": "emphasis", "role": "main" },
+    { "id": "delegate_task", "from": "parent", "to": "subagents", "label": "delegate / question / result · taskId", "variant": "emphasis", "role": "main" },
+    { "id": "subagent_tool", "from": "subagents", "to": "tools", "label": "call / progress / result · toolCallId", "variant": "default", "role": "main" },
+    { "id": "memory_channel", "from": "parent", "to": "engram", "label": "memory call / result / error", "variant": "dashed", "role": "async", "route": "return-left" },
+    { "id": "review_channel", "from": "parent", "to": "native_review", "label": "provider-bound status / result", "variant": "security", "role": "async" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Identity contract",
+      "items": [
+        "Concurrent subagents use taskId instead of one shared worker node",
+        "Concurrent tool activity uses toolCallId and the emitted tool name",
+        "The live viewer reverses emphasis from each emitted from/to pair; these channels summarize both directions"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Truth boundary",
+      "items": [
+        "The viewer renders only parent-visible runtime events",
+        "Missing events, disconnects, and scripted demos remain explicitly labeled"
+      ]
+    }
+  ]
+}

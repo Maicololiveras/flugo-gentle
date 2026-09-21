@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Gentle · Live session map</title>
+  <style>:root{
+  color-scheme:dark;
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px;
+  --pi-page:#0f1413;
+  --pi-surface:#18201d;
+  --pi-surface-raised:#202a26;
+  --pi-selected:#29352f;
+  --pi-border:#405048;
+  --pi-border-strong:#78a88f;
+  --pi-text:#e2ebe6;
+  --pi-muted:#9aaca3;
+  --pi-dim:#8fa299;
+  --pi-accent:#8fe0bd;
+  --pi-success:#65d6a6;
+  --pi-warning:#e8c56b;
+  --pi-error:#ef8f86;
+  --pi-user:#d7e78e;
+  --pi-parent:#8fe0bd;
+  --pi-worker:#c5a7e8;
+  --pi-tool:#80b8ec;
+  --pi-memory:#8ed3a8;
+  --pi-native:#e8b879;
+  --space-1:.25rem;
+  --space-2:.5rem;
+  --space-3:.75rem;
+  --space-4:1rem;
+  --space-5:1.5rem;
+  --space-6:2rem;
+  --radius-sm:.5rem;
+  --radius-md:.8rem;
+  --radius-lg:1.15rem;
+}
+*{box-sizing:border-box}
+html{min-width:320px;background:var(--pi-page)}
+body{margin:0;min-height:100vh;padding:max(var(--space-4),env(safe-area-inset-top)) max(var(--space-4),env(safe-area-inset-right)) max(var(--space-4),env(safe-area-inset-bottom)) max(var(--space-4),env(safe-area-inset-left));color:var(--pi-text);background:var(--pi-page)}
+::selection{color:var(--pi-page);background:var(--pi-accent)}
+:focus-visible{outline:2px solid var(--pi-accent);outline-offset:3px}
+*{scrollbar-color:var(--pi-border-strong) var(--pi-surface);scrollbar-width:thin}
+.app-shell{display:flex;flex-direction:column;width:min(100%,1680px);min-height:calc(100vh - 2rem);margin:auto;overflow:hidden;border:1px solid var(--pi-border);border-radius:var(--radius-lg);background:var(--pi-surface);box-shadow:0 1.5rem 4rem color-mix(in srgb,var(--pi-page) 75%,transparent)}
+.topbar,.topbar-actions,.demo-controls,.section-heading,.map-heading,.handoff-strip,footer,.terminal-controls{display:flex;align-items:center}
+.topbar{min-height:76px;justify-content:space-between;gap:var(--space-5);padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--pi-border);background:color-mix(in srgb,var(--pi-surface) 88%,var(--pi-page))}
+.brand{display:flex;align-items:center;gap:var(--space-3);min-width:max-content;color:inherit;text-decoration:none}
+.brand-mark{width:30px;height:30px;color:var(--pi-accent);overflow:visible}.brand-mark path,.brand-mark circle{fill:none;stroke:currentColor;stroke-width:1.75}.brand-mark circle{fill:var(--pi-accent);stroke:none}
+.brand>span{display:grid;gap:.08rem}.brand strong{font-size:1.15rem;letter-spacing:-.02em}.brand small{color:var(--pi-muted);font-size:.75rem;letter-spacing:.04em;text-transform:uppercase}
+.topbar-actions{justify-content:flex-end;gap:var(--space-3);flex-wrap:wrap}
+.theme-readout{display:flex;align-items:center;gap:var(--space-2);min-width:10.5rem;padding:.45rem .7rem;border:1px solid var(--pi-border);border-radius:var(--radius-sm);background:var(--pi-surface-raised)}
+.theme-readout>span:last-child{display:grid;min-width:0}.theme-readout small{color:var(--pi-muted);font:600 .7rem/1.2 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}.theme-readout strong{max-width:13rem;overflow:hidden;color:var(--pi-text);font-size:.78rem;text-overflow:ellipsis;white-space:nowrap}.theme-swatch{width:.7rem;height:1.7rem;border-radius:.3rem;background:var(--pi-accent);box-shadow:inset 0 0 0 1px var(--pi-border-strong)}
+.language-label,.demo-controls label{display:flex;align-items:center;gap:var(--space-2);color:var(--pi-muted);font-size:.78rem}
+button,select{min-height:38px;border:1px solid var(--pi-border);border-radius:var(--radius-sm);color:var(--pi-text);background:var(--pi-surface-raised);font:600 .78rem/1 inherit}button{padding:.7rem .9rem;cursor:pointer}select{padding:.55rem 2rem .55rem .7rem;cursor:pointer}button:hover:not(:disabled),select:hover:not(:disabled){border-color:var(--pi-border-strong);background:var(--pi-selected)}button:disabled,select:disabled{opacity:.42;cursor:default}#play{border-color:var(--pi-accent);color:var(--pi-page);background:var(--pi-accent)}
+#connection{padding:.5rem .72rem;border:1px solid var(--pi-warning);border-radius:999px;color:var(--pi-warning);font:700 .72rem/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;white-space:nowrap}#connection.live{border-color:var(--pi-success);color:var(--pi-success)}
+.demo-controls{gap:var(--space-2);min-height:58px;padding:.65rem var(--space-5);border-bottom:1px solid var(--pi-border);background:var(--pi-surface);flex-wrap:wrap}.demo-controls #count{margin-left:auto;color:var(--pi-muted);font:600 .72rem ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+.workspace{display:grid;flex:1;grid-template-columns:minmax(0,.82fr) minmax(38rem,1.38fr);min-height:730px}.activity-panel,.map-panel{min-width:0}.activity-panel{display:flex;flex-direction:column;border-right:1px solid var(--pi-border);background:color-mix(in srgb,var(--pi-surface) 95%,var(--pi-page))}.map-panel{display:flex;flex-direction:column;padding:var(--space-6);background:var(--pi-surface)}
+.section-heading,.map-heading{align-items:flex-start;justify-content:space-between;gap:var(--space-4)}.section-heading{min-height:78px;padding:var(--space-5);border-bottom:1px solid var(--pi-border)}h1,h2{margin:0;color:var(--pi-text);font-weight:680;letter-spacing:-.035em;text-wrap:balance}h1{font-size:clamp(1.3rem,2vw,1.7rem)}h2{max-width:20ch;font-size:clamp(1.45rem,2.2vw,2rem);line-height:1.1}.phase-chip{padding:.42rem .65rem;border:1px solid var(--pi-border-strong);border-radius:999px;color:var(--pi-accent);font:700 .72rem ui-monospace,SFMono-Regular,Consolas,monospace}
+.event-log{height:clamp(390px,54vh,590px);overflow:auto;padding:var(--space-5);scroll-behavior:smooth}.empty{display:grid;place-content:center;gap:var(--space-2);height:100%;min-height:14rem;text-align:center}.empty strong{font-size:1.1rem}.empty span{color:var(--pi-muted);font-size:.82rem}
+.event{--event-color:var(--pi-border-strong);margin:0 0 var(--space-3);padding:var(--space-3) var(--space-4);border:1px solid var(--pi-border);border-left-color:var(--event-color);border-radius:var(--radius-sm);background:var(--pi-surface-raised);animation:event-arrive .24s cubic-bezier(.22,1,.36,1)}.event-user{--event-color:var(--pi-user)}.event-worker{--event-color:var(--pi-worker)}.event-error{--event-color:var(--pi-error)}.event-waiting{--event-color:var(--pi-warning)}.event-running{--event-color:var(--pi-accent)}.event-settled{--event-color:var(--pi-success)}.event>header{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-2)}.event h3{margin:0;color:var(--event-color);font-size:.82rem;line-height:1.35}.event-status{flex:none;color:var(--pi-muted);font:650 .7rem ui-monospace,SFMono-Regular,Consolas,monospace;text-transform:uppercase}.event p,.event pre{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}.event p{color:var(--pi-text);font-size:.82rem;line-height:1.6}.event pre{padding-top:var(--space-3);color:var(--pi-muted);font:normal .74rem/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}.event details{margin-top:var(--space-3)}summary{color:var(--pi-muted);font-size:.76rem;cursor:pointer}.identity-row{display:flex;gap:var(--space-2);margin:-.1rem 0 var(--space-2);flex-wrap:wrap}.identity-row code{padding:.2rem .38rem;border-radius:.3rem;color:var(--event-color);background:color-mix(in srgb,var(--event-color) 12%,transparent);font-size:.67rem}
+.composer{display:flex;gap:var(--space-3);min-height:62px;margin:0 var(--space-5) var(--space-3);padding:var(--space-3) var(--space-4);border:1px solid var(--pi-border-strong);border-radius:var(--radius-sm);background:var(--pi-page)}.composer>span{color:var(--pi-accent);font-size:1.25rem}.composer #prompt{min-width:0;overflow-wrap:anywhere;color:var(--pi-text);font:normal .82rem/1.55 ui-monospace,SFMono-Regular,Consolas,monospace}.notice{margin:0;padding:0 var(--space-5) var(--space-4);color:var(--pi-muted);font-size:.78rem}
+.map-heading{margin-bottom:var(--space-3)}.map-intro{max-width:68ch;margin:0 0 var(--space-4);color:var(--pi-muted);font-size:.84rem;line-height:1.6}.state-legend{display:flex;justify-content:flex-end;gap:.45rem;max-width:18rem;flex-wrap:wrap}.state-legend span{display:flex;align-items:center;gap:.3rem;color:var(--pi-muted);font:600 .7rem ui-monospace,SFMono-Regular,Consolas,monospace}.state-legend span::before{width:.42rem;height:.42rem;border-radius:50%;background:var(--state-color,var(--pi-dim));content:""}.state-legend [data-state=running]{--state-color:var(--pi-accent)}.state-legend [data-state=waiting]{--state-color:var(--pi-warning)}.state-legend [data-state=error]{--state-color:var(--pi-error)}.state-legend [data-state=ended]{--state-color:var(--pi-muted)}.state-legend [data-state=settled]{--state-color:var(--pi-success)}
+.graph-frame{position:relative;overflow:hidden;border:1px solid var(--pi-border);border-radius:var(--radius-md);background:var(--pi-page)}#graph{display:block;width:100%;min-height:clamp(520px,65vh,760px);max-height:none}.lane-labels text{fill:var(--pi-dim);font:650 10px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:1px}.relationship .edge-halo{fill:none;stroke:var(--pi-page);stroke-width:6}.relationship .edge{fill:none;stroke:var(--pi-border);stroke-width:1.5}.relationship.is-active .edge{stroke:var(--pi-accent);stroke-width:2.5}#arrow path{fill:var(--pi-border)}#arrowActive path{fill:var(--pi-accent)}.signal-packet{fill:var(--pi-warning);filter:drop-shadow(0 1px 4px color-mix(in srgb,var(--pi-warning) 55%,transparent))}
+.actor{--actor:var(--pi-parent);--state-color:var(--pi-dim);cursor:pointer}.actor-user{--actor:var(--pi-user)}.actor-parent{--actor:var(--pi-parent)}.actor-worker{--actor:var(--pi-worker)}.actor-tool{--actor:var(--pi-tool)}.actor-memory{--actor:var(--pi-memory)}.actor-native{--actor:var(--pi-native)}.actor rect{fill:color-mix(in srgb,var(--actor) 8%,var(--pi-surface-raised));stroke:var(--pi-border);stroke-width:1}.actor:hover rect,.actor:focus-visible rect,.actor.is-selected rect{stroke:var(--actor);stroke-width:1.6}.actor.is-active rect{fill:color-mix(in srgb,var(--actor) 16%,var(--pi-surface-raised));stroke:var(--actor)}.actor text{pointer-events:none}.actor-label{fill:var(--pi-text);font:680 13px ui-sans-serif,system-ui,sans-serif}.actor-id{fill:var(--pi-muted);font:10px ui-monospace,SFMono-Regular,Consolas,monospace}.state-dot{fill:var(--state-color)}.state-text{fill:var(--state-color);font:650 8px ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.6px}.state-running{--state-color:var(--pi-accent)}.state-waiting{--state-color:var(--pi-warning)}.state-error{--state-color:var(--pi-error)}.state-ended{--state-color:var(--pi-muted)}.state-settled{--state-color:var(--pi-success)}
+.handoff-strip{justify-content:space-between;gap:var(--space-3);min-height:48px;padding:.65rem .15rem}.handoff-strip span{color:var(--pi-muted);font:650 .7rem ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.08em}.handoff-strip strong{overflow:hidden;color:var(--pi-accent);font-size:.78rem;text-align:right;text-overflow:ellipsis;white-space:nowrap}.context-card,.scope-note{border-top:1px solid var(--pi-border)}.context-card summary,.scope-note summary{padding:var(--space-3) 0;color:var(--pi-text);font-weight:650}.context-card>div{max-height:160px;overflow:auto;padding:0 0 var(--space-4);color:var(--pi-muted);font:normal .76rem/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.scope-note p{max-width:72ch;color:var(--pi-muted);font-size:.78rem;line-height:1.65}
+footer{justify-content:space-between;gap:var(--space-4);padding:var(--space-3) var(--space-5);border-top:1px solid var(--pi-border);color:var(--pi-muted);font:600 .72rem ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums}
+.choices{display:flex;gap:var(--space-2);margin-top:var(--space-3);flex-wrap:wrap}.terminal-panel{border-bottom:1px solid var(--pi-border)}.terminal-controls{gap:var(--space-2);padding:var(--space-3) var(--space-5);font-size:.76rem}.terminal-controls b{margin-right:auto;color:var(--pi-accent)}#terminalHost{height:440px;padding:var(--space-2);background:var(--pi-page)}#terminalStatus{margin:var(--space-2) var(--space-5);color:var(--pi-muted);font-size:.76rem}.log-divider{padding:var(--space-2) var(--space-5);border-top:1px solid var(--pi-border);color:var(--pi-dim);font:650 .66rem ui-monospace,SFMono-Regular,Consolas,monospace}.workspace-mode .event-log{height:260px}.workspace-mode .composer{display:none}.workspace-mode .workspace{grid-template-columns:minmax(0,1.2fr) minmax(30rem,1fr)}.is-disconnected .graph-frame{border-color:var(--pi-error)}
+[hidden]{display:none!important}
+@keyframes event-arrive{from{opacity:.2;transform:translateY(8px);filter:blur(2px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@media(max-width:1100px){body{padding:var(--space-2)}.app-shell{min-height:calc(100vh - 1rem)}.workspace,.workspace-mode .workspace{grid-template-columns:1fr}.activity-panel{border-right:0;border-bottom:1px solid var(--pi-border)}.event-log{height:420px}.map-panel{padding:var(--space-5)}#graph{max-height:none}.state-legend{max-width:22rem}}
+@media(max-width:680px){:root{font-size:16px}body{padding:0}.app-shell{min-height:100vh;border:0;border-radius:0}.topbar{align-items:flex-start;padding:var(--space-3);flex-direction:column}.topbar-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);width:100%;justify-content:stretch}.theme-readout{min-width:0}.language-label{min-width:0}.language-label select{width:100%;min-width:0}.language-label>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}#connection{grid-column:1/-1;justify-self:start}.demo-controls{padding:var(--space-3)}.demo-controls label:first-child{width:100%}.demo-controls label:first-child select{flex:1;min-width:0}.speed-label{display:none!important}.demo-controls #count{width:100%;margin-left:0}.section-heading,.map-heading{flex-direction:column}.section-heading{padding:var(--space-4)}.event-log{height:290px;padding:var(--space-3)}.composer{margin:0 var(--space-3) var(--space-3)}.notice{padding:0 var(--space-3) var(--space-3)}.map-panel{padding:var(--space-4)}.state-legend{justify-content:flex-start;max-width:none}.graph-frame{overflow:hidden}#graph{width:100%;height:auto;min-height:0;max-height:none}.handoff-strip{align-items:flex-start;flex-direction:column}.handoff-strip strong{max-width:100%;white-space:normal;text-align:left}footer{align-items:flex-start;flex-direction:column}.terminal-controls{padding:var(--space-3)}#terminalHost{height:360px}button,select{min-height:44px}}
+@media(pointer:coarse){button,select{min-height:44px}.actor{cursor:default}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition:none!important}.signal-packet{display:none}}
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#main" aria-label="Gentle live session map">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 4v24M4 16h24M7.5 7.5l17 17M24.5 7.5l-17 17"/>
+          <circle cx="16" cy="16" r="4"/>
+        </svg>
+        <span><strong>gentle</strong><small>live session map</small></span>
+      </a>
+      <div class="topbar-actions">
+        <div class="theme-readout" title="Inherited from the active Pi theme">
+          <span class="theme-swatch" aria-hidden="true"></span>
+          <span><small>PI THEME</small><strong id="themeName">Observer default</strong></span>
+        </div>
+        <label class="language-label"><span>Language</span><select id="language" aria-label="Language / Idioma"><option value="en">English</option><option value="es">Español</option></select></label>
+        <span id="connection" role="status">OFFLINE DEMO</span>
+      </div>
+    </header>
+
+    <nav class="demo-controls" aria-label="Scripted demo controls">
+      <label>Example <select id="scenario"><option value="0">A small change</option><option value="1">CSV · ask the user</option><option value="2">Authorization · review and repair</option><option value="3">Resume · memory unavailable</option></select></label>
+      <button id="play">Play demo</button>
+      <button id="step">Next step →</button>
+      <button id="reset">Restart</button>
+      <label class="speed-label">Speed <select id="speed" aria-label="Playback speed"><option value="2000">1×</option><option value="1000">2×</option><option value="500">4×</option></select></label>
+      <span id="count">0 events</span>
+    </nav>
+
+    <main id="main" class="workspace">
+      <section class="activity-panel" aria-labelledby="activityTitle">
+        <div class="section-heading">
+          <h1 id="activityTitle">Observable activity</h1>
+          <span id="phase" class="phase-chip">READY</span>
+        </div>
+
+        <section id="terminalPanel" class="terminal-panel" hidden>
+          <div class="terminal-controls"><b>TERMINAL / PI</b><button id="startPi" disabled>Start Pi</button><button id="stopPi" disabled>Stop Pi</button><button id="reconnectTerminal">Reconnect terminal</button></div>
+          <div id="terminalHost" data-raw></div>
+          <p id="terminalStatus">Starting terminal…</p>
+          <div class="log-divider">EVENT LOG</div>
+        </section>
+
+        <div id="log" class="event-log" aria-live="polite"><div class="empty"><strong>Watch the conversation here.</strong><span>The map follows each observable handoff.</span></div></div>
+        <div class="composer"><span aria-hidden="true">›</span><div id="prompt">Choose an example and press Play demo.</div></div>
+        <p id="notice" class="notice">Scripted examples · no models or tools are executed</p>
+      </section>
+
+      <aside class="map-panel" aria-labelledby="mapTitle">
+        <div class="map-heading">
+          <h2 id="mapTitle">Follow the work, not hidden reasoning.</h2>
+          <div class="state-legend" aria-label="Actor states"><span data-state="running">Running</span><span data-state="waiting">Waiting</span><span data-state="error">Error</span><span data-state="ended">Ended</span><span data-state="settled">Settled</span></div>
+        </div>
+        <p class="map-intro">Each subagent and tool call keeps its emitted task or call identity. Select a node to inspect only the context exposed by the runtime.</p>
+        <div class="graph-frame">
+          <svg id="graph" viewBox="0 0 830 440" role="img" aria-label="Observable event flow between user, parent, subagents, tools, native review and Engram"></svg>
+        </div>
+        <div class="handoff-strip"><span>ACTIVE ROUTE</span><strong id="handoff">Waiting for an event</strong></div>
+        <details id="contextDetails" class="context-card" open>
+          <summary>Observable context</summary>
+          <div id="child" data-raw>Delegations, questions and returned results appear here. Child-internal steps remain hidden unless the runtime exposes them.</div>
+        </details>
+        <details class="scope-note">
+          <summary>What does Live show?</summary>
+          <p>Observable input, visible assistant messages, tool calls and results, and Gentle subagent messages. It does not expose private reasoning. ODD, TDD and RDD evidence appears only when the runtime emits it; the observer does not infer a verdict.</p>
+          <p>Respond to real questions in the Gentle terminal. This browser remains an observer.</p>
+        </details>
+      </aside>
+    </main>
+
+    <footer><span id="time">READY</span><span>No additional model calls from this viewer</span><span>Gentle AI × Pi · observable events</span></footer>
+  </div>
+  <script>(function(){
+'use strict';
+const es={
+'live session map':'mapa de sesión en vivo','PI THEME':'TEMA DE PI','Observer default':'Tema predeterminado','Inherited from the active Pi theme':'Heredado del tema activo de Pi','Language':'Idioma','Scripted demo controls':'Controles de demo preparada','Speed':'Velocidad','Observable activity':'Actividad observable','OBSERVABLE HANDOFFS':'INTERCAMBIOS OBSERVABLES','Follow the work, not hidden reasoning.':'Sigue el trabajo, no el razonamiento oculto.','Each subagent and tool call keeps its emitted task or call identity. Select a node to inspect only the context exposed by the runtime.':'Cada subagente y llamada de herramienta conserva la identidad emitida de tarea o llamada. Selecciona un nodo para inspeccionar solo el contexto expuesto por el runtime.','Actor states':'Estados de los actores','Running':'En ejecución','Waiting':'En espera','Error':'Error','Ended':'Terminado','Settled':'Finalizado','ACTIVE ROUTE':'RUTA ACTIVA','Observable context':'Contexto observable','Observable details':'Detalles observables','Parent agent':'Agente padre','Tool':'Herramienta','Native review':'Revisión nativa','Observed':'Observado','human control':'control humano','current session':'sesión actual','observable calls only':'solo llamadas observables','provider-owned events':'eventos del proveedor','The map follows each observable handoff.':'El mapa sigue cada intercambio observable.','Delegations, questions and returned results appear here. Child-internal steps remain hidden unless the runtime exposes them.':'Aquí aparecen delegaciones, preguntas y resultados devueltos. Los pasos internos del hijo permanecen ocultos salvo que el runtime los exponga.','The viewer renders only parent-visible runtime events':'El visor muestra solo eventos del runtime visibles para el padre','Missing events, disconnects, and scripted demos remain explicitly labeled':'Los eventos ausentes, las desconexiones y las demos preparadas se identifican explícitamente',
+'behind the session':'detrás de la sesión','OFFLINE DEMO':'DEMO SIN CONEXIÓN','Example':'Ejemplo','A small change':'Un cambio pequeño','CSV · ask the user':'CSV · preguntar al usuario','Authorization · review and repair':'Autorización · revisión y corrección','Resume · memory unavailable':'Retomar · memoria no disponible','Play demo':'Reproducir demo','Pause':'Pausar','Next step →':'Paso siguiente →','Restart':'Reiniciar','SESSION / PARENT':'SESIÓN / PADRE','READY':'LISTO','Watch the conversation here.':'Sigue la conversación aquí.','The graph follows each observable handoff.':'El diagrama sigue cada intercambio observable.','Choose an example and press Play demo.':'Elige un ejemplo y pulsa Reproducir demo.','Scripted examples · no models or tools are executed':'Ejemplos preparados · no ejecutan modelos ni herramientas','BEHIND THE SCENES':'LO QUE OCURRE DETRÁS','Follow the handoff.':'Sigue el intercambio.','User, parent, subagents and tools — one event at a time.':'Usuario, padre, subagentes y herramientas: un evento a la vez.','Waiting for an event':'Esperando un evento','SUBAGENT / RETURNED CONTEXT':'SUBAGENTE / CONTEXTO DEVUELTO','Subagent context will appear after delegation.':'El contexto del subagente aparecerá tras la delegación.','Delegations, requests and returned results appear here. Child-internal steps are visible only when exposed by the runtime.':'Aquí aparecen delegaciones, consultas y resultados devueltos. Los pasos internos del hijo solo se ven cuando el runtime los expone.','What does Live show?':'¿Qué muestra Live?','Observable input, visible assistant messages, tool calls and results, and Gentle subagent messages. It does not expose private reasoning. ODD, TDD and RDD evidence appears in the actual tool output; the observer does not infer a verdict.':'Entradas observables, mensajes visibles, llamadas y resultados de herramientas, y mensajes de los subagentes de Gentle. No expone razonamiento privado. La evidencia de ODD, TDD y RDD aparece en las salidas reales; el visor no deduce un veredicto.','Respond to real questions in the Gentle terminal. This browser is an observer.':'Responde las preguntas reales en la terminal de Gentle. En modo Workspace, la terminal está integrada aquí.','observable events':'eventos observables','User':'Usuario','Parent':'Padre','Subagent':'Subagente','Tools':'Herramientas','RDD engine':'Motor RDD','Contract and evidence':'Contrato y evidencia','SCRIPTED EXAMPLE':'EJEMPLO PREPARADO','Waiting for a human decision. Reply in the Gentle terminal.':'Esperando una decisión humana. Responde en la terminal de Gentle.','Choose below to return a decision through the parent.':'Elige una opción para devolver la decisión a través del padre.','Filtered rows':'Registros filtrados','All accessible rows':'Todos los accesibles','CONNECTING':'CONECTANDO','LIVE · CONNECTED':'LIVE · CONECTADO','Live observable events · reply and approve actions in the Gentle terminal':'Eventos reales observables · responde y autoriza acciones en la terminal de Gentle','Send a message in the Gentle terminal.':'Envía un mensaje en la terminal de Gentle.','TEST FEED · SCRIPTED':'FLUJO DE PRUEBA · SIMULADO','Synthetic integration test feed — not a real agent session':'Eventos sintéticos de prueba: no son una sesión real del agente','Reconnected; older events exceeded the 500-event buffer.':'Reconectado; los eventos anteriores excedieron el búfer de 500 eventos.','DISCONNECTED · RETRYING':'DESCONECTADO · REINTENTANDO','NO LIVE SIGNAL':'SIN SEÑAL EN VIVO','observed':'observado','illustrative':'ilustrativo','running':'en ejecución','requested':'solicitado','returned':'devuelto','error':'error','completed':'completado','settled':'finalizado','awaiting settlement':'esperando finalización','interaction_required':'requiere interacción','WORKSPACE · CONNECTED':'WORKSPACE · CONECTADO','Start Pi':'Iniciar Pi','Stop Pi':'Detener Pi','Reconnect terminal':'Reconectar terminal','TERMINAL / PI':'TERMINAL / PI','EVENT LOG':'REGISTRO DE EVENTOS','Starting terminal…':'Iniciando terminal…','Terminal ready. Click Start Pi.':'Terminal lista. Pulsa Iniciar Pi.','Pi is running':'Pi está en ejecución','Pi process exited':'El proceso de Pi terminó','Terminal disconnected. The process may still be running.':'Terminal desconectada. El proceso puede seguir ejecutándose.','Terminal dependency failed to load. Install workspace dependencies.':'No se pudo cargar la terminal. Instala las dependencias del workspace.','Native agent output keeps its original language.':'La salida original del agente conserva su idioma.','No additional model calls from this viewer':'Este visor no añade llamadas al modelo',
+'User request':'Petición del usuario','Inspect the existing text':'Inspeccionar el texto existente','Bounded change':'Cambio acotado','Edit the word':'Editar la palabra','Review assessment':'Evaluación de revisión','Result':'Resultado','Delegate exploration':'Delegar exploración','Exploration result':'Resultado de exploración','Record intent':'Registrar intención','Delegate implementation':'Delegar implementación','Worker asks the parent':'El subagente pregunta al padre','Choose the export scope':'Elegir el alcance de exportación','Resume with confirmed scope':'Continuar con el alcance confirmado','Review checkpoint':'Punto de revisión','User decision':'Decisión del usuario','Bound the fix':'Acotar la corrección','Reproduce and fix':'Reproducir y corregir','Return evidence':'Devolver evidencia','Four review perspectives':'Cuatro perspectivas de revisión','Finding':'Hallazgo','Refute the claim':'Refutar la afirmación','Bounded remediation':'Corrección acotada','Regression check':'Prueba de regresión','Directed validation and ACK':'Validación dirigida y ACK','Recover task context':'Recuperar contexto de tarea','Memory unavailable':'Memoria no disponible','Inspect actual state':'Inspeccionar el estado real','Relaunch bounded work':'Relanzar trabajo acotado','Configured verification':'Verificación configurada','Return result':'Devolver resultado',
+'Fix “Export flie” in the report help.':'Corrige «Exportar archibo» en la ayuda del reporte.','Read the help file and inspect its diff.':'Lee el archivo de ayuda e inspecciona sus diferencias.','One documentation typo. No executable behavior changes.':'Una errata documental. No cambia el comportamiento ejecutable.','Export flie → Export file':'Exportar archibo → Exportar archivo','Passive change; inspect the content. No review perspectives needed.':'Cambio pasivo; inspeccionar contenido. No requiere perspectivas de revisión.','Corrected the typo and checked the diff. No artificial delegation or questions.':'Errata corregida y diferencias comprobadas. Sin delegaciones ni preguntas artificiales.',
+'Add CSV export using the current report workflow.':'Añade exportación CSV usando el flujo actual de reportes.','Map filters, permissions and export integration points. Read only.':'Localiza filtros, permisos y puntos de integración. Solo lectura.','Two valid export scopes exist. Product intent must choose one.':'Hay dos alcances válidos. La intención del producto debe definir cuál usar.','Save the ODD task document and its Engram mirror.':'Guarda el documento de tareas ODD y su espejo en Engram.','Keep existing permissions. Use configured TDD and the targeted runner.':'Mantén los permisos existentes. Usa TDD configurado y las pruebas focalizadas.','Should export contain filtered rows or all accessible rows?':'¿La exportación debe incluir registros filtrados o todos los accesibles?','The parent relays the product decision to the user.':'El padre transmite la decisión de producto al usuario.','Read the updated ODD contract before implementing.':'Lee el contrato ODD actualizado antes de implementar.','Write and run a failing CSV test. Confirm failure is caused by missing behavior.':'Escribe y ejecuta una prueba CSV que falle. Confirma que falta el comportamiento esperado.','Implement the minimum behavior. Run the same targeted test.':'Implementa el comportamiento mínimo. Ejecuta la misma prueba focalizada.','Check quoting, empty rows and permissions; refactor with green tests.':'Comprueba comillas, registros vacíos y permisos; refactoriza manteniendo pruebas verdes.','Response received; settlement is still pending.':'Respuesta recibida; la finalización aún está pendiente.','Deliver structured result and focused validation evidence.':'Entrega el resultado estructurado y la evidencia de validación focalizada.','Follow the native candidate identity and applicable consent.':'Respeta la identidad nativa del candidato y el consentimiento aplicable.','Export is implemented and the observed checks are reported. Publishing requires its own authorization.':'Exportación implementada y comprobaciones observadas reportadas. Publicar requiere autorización propia.',
+'Users from tenant A can access reports from tenant B. Fix isolation.':'Los usuarios de la empresa A acceden a reportes de la empresa B. Corrige el aislamiento.','Document isolation criteria; delegate only the authorized surfaces.':'Documenta criterios de aislamiento y delega solo las superficies autorizadas.','RED reproduces cross-tenant access. GREEN checks the tenant. Add alternate cases.':'RED reproduce acceso entre empresas. GREEN valida la empresa. Añade casos alternativos.','Return the scoped patch and test results.':'Devuelve el cambio acotado y los resultados de pruebas.','Risk, Resilience, Readability and Reliability inspect the same frozen candidate.':'Risk, Resilience, Readability y Reliability inspeccionan el mismo candidato congelado.','The cache key omits the tenant. Reproduction evidence supports the claim.':'La clave de caché omite la empresa. La reproducción sustenta el hallazgo.','Check the allegation against the actual candidate and evidence.':'Contrasta la afirmación con el candidato real y la evidencia.','Add tenant identity to the cache key and a regression test.':'Añade la identidad de empresa a la clave de caché y una prueba de regresión.','Reproduce two tenants with the same report ID; fix and rerun.':'Reproduce dos empresas con el mismo ID de reporte; corrige y repite la prueba.','Validate the original criterion and repair regressions. Consume native authority.':'Valida el criterio original y las regresiones de la corrección. Consume la autoridad nativa.','Isolation and the cache key are corrected. Review approval does not authorize publication.':'Aislamiento y clave de caché corregidos. Aprobar la revisión no autoriza publicar.',
+'Continue yesterday’s export. Keep TDD disabled and use configured checks.':'Continúa la exportación de ayer. Mantén TDD desactivado y usa los controles configurados.','Read the ODD document and attempt memory retrieval.':'Lee el documento ODD e intenta recuperar la memoria.','Do not claim that the Engram mirror is synchronized.':'No afirmes que el espejo de Engram está sincronizado.','Read the repository, task document and existing evidence.':'Lee el repositorio, el documento de tareas y la evidencia existente.','Pass recovered intent and current constraints. Do not invent an active child session.':'Entrega la intención recuperada y las restricciones actuales. No inventes una sesión de hijo activa.','Run the configured build and focused checks; do not label this as RED/GREEN TDD.':'Ejecuta la compilación y los controles configurados; no lo presentes como RED/GREEN TDD.','Return validation evidence and mark the memory mirror as pending.':'Devuelve evidencia de validación y marca el espejo de memoria como pendiente.','Task resumed from the document. Memory recovery remains pending.':'Tarea retomada desde el documento. La recuperación de memoria sigue pendiente.',
+'User → parent':'Usuario → padre','Parent started':'Padre iniciado','Agent ended — settlement not confirmed':'Agente terminado: finalización aún no confirmada','Parent settled':'Padre finalizado','Session connected':'Sesión conectada','Waiting for the user':'Esperando al usuario','User prompt closed':'Diálogo del usuario cerrado','Parent response':'Respuesta del padre'
+};
+let language='en';try{language=localStorage.getItem('gentle-language')==='es'?'es':'en'}catch{}
+function t(value){if(language==='en')return value;if(es[value])return es[value];if(value.includes('\n'))return value.split('\n').map(t).join('\n');if(value.includes(' → '))return value.split(' → ').map(part=>es[part]??part).join(' → ');if(/^\d+ events$/.test(value))return value.replace('events','eventos');if(value.startsWith('Task: '))return value.replace('Task: ','Tarea: ');if(value.startsWith('Confirmed scope: '))return value.replace('Confirmed scope: ','Alcance confirmado: ').replace('Filtered rows','Registros filtrados').replace('All accessible rows','Todos los accesibles').replace('. Update the ODD task, retain permissions, then continue.','. Actualiza la tarea ODD, conserva los permisos y continúa.');for(const [a,b]of [['Call · ','Llamada · '],['Result · ','Resultado · '],['Progress · ','Progreso · ']])if(value.startsWith(a))return b+value.slice(a.length);return value;}
+const sources=new WeakMap();let scheduled=false;
+function apply(){scheduled=false;document.documentElement.lang=language;const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);for(let node=walker.nextNode();node;node=walker.nextNode()){if(node.parentElement?.closest('script,style,[data-raw],#terminalHost'))continue;const old=sources.get(node);const original=old&&old.rendered===node.data?old.original:node.data;const trimmed=original.trim(),rendered=original.replace(trimmed,t(trimmed));sources.set(node,{original,rendered});if(node.data!==rendered)node.data=rendered;}const select=document.getElementById('language');if(select)select.value=language;}
+function setLanguage(value){language=value==='es'?'es':'en';try{localStorage.setItem('gentle-language',language)}catch{}apply();document.dispatchEvent(new CustomEvent('gentle-language',{detail:language}));}
+function init(){document.getElementById('language')?.addEventListener('change',e=>setLanguage(e.target.value));apply();new MutationObserver(()=>{if(!scheduled){scheduled=true;queueMicrotask(apply)}}).observe(document.body,{subtree:true,childList:true,characterData:true});}
+window.GentleI18n={t,setLanguage,get language(){return language}};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+  <script>(function(){
+'use strict';
+let launched=false;
+window.startWorkspaceTerminal=async function(key){
+ if(launched)return;launched=true;
+ const host=document.getElementById('terminalPanel');host.hidden=false;
+ const status=document.getElementById('terminalStatus');
+ function script(src){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=reject;document.head.append(s)})}
+ try{const css=document.createElement('link');css.rel='stylesheet';css.href='/vendor/xterm.css';document.head.append(css);await script('/vendor/xterm.js');await script('/vendor/fit.js')}catch{status.textContent='Terminal dependency failed to load. Install workspace dependencies.';return;}
+ const term=new Terminal({cursorBlink:true,convertEol:false,fontSize:13,scrollback:3000,theme:{background:'#111815',foreground:'#dce5e5'}}),fit=new FitAddon.FitAddon();term.loadAddon(fit);term.open(document.getElementById('terminalHost'));fit.fit();
+ let socket;
+ const start=document.getElementById('startPi'),stop=document.getElementById('stopPi');
+ const send=message=>{if(socket?.readyState===WebSocket.OPEN)socket.send(JSON.stringify(message))};
+ function connect(){if(socket&&socket.readyState<2)return;status.textContent='Starting terminal…';term.reset();socket=new WebSocket(`ws://${location.host}/terminal?key=${encodeURIComponent(key)}`);
+ socket.onmessage=e=>{const m=JSON.parse(e.data);if(m.type==='output')term.write(m.data);if(m.type==='state'){start.disabled=m.state!=='ready';stop.disabled=m.state!=='running';status.textContent=({ready:'Terminal ready. Click Start Pi.',running:'Pi is running',exited:'Pi process exited',error:m.message})[m.state]??m.state;fit.fit();send({type:'resize',cols:term.cols,rows:term.rows});}};
+ socket.onclose=()=>{start.disabled=true;stop.disabled=true;status.textContent='Terminal disconnected. The process may still be running.'};
+ socket.onerror=()=>{status.textContent='Terminal disconnected. The process may still be running.'};}
+ start.onclick=()=>{send({type:'start'});term.focus()};stop.onclick=()=>send({type:'stop'});document.getElementById('reconnectTerminal').onclick=connect;
+ term.onData(data=>send({type:'input',data}));new ResizeObserver(()=>{fit.fit();send({type:'resize',cols:term.cols,rows:term.rows})}).observe(document.getElementById('terminalHost'));
+ connect();window.addEventListener('beforeunload',()=>socket?.close());
+};
+})();
+</script>
+  <script>'use strict';
+const $=id=>document.getElementById(id);
+const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+const attr=value=>esc(value).replace(/`/g,'&#96;');
+const roleNames={user:'User',parent:'Parent agent',worker:'Subagent',tools:'Tool',native:'Native review',memory:'Engram'};
+const roleColors={user:'user',parent:'parent',worker:'worker',tools:'tool',native:'native',memory:'memory'};
+const stateLabels={idle:'Observed',active:'Observed',running:'Running',waiting:'Waiting',error:'Error',ended:'Ended',settled:'Settled'};
+const graphState={nodes:new Map(),links:new Map(),selected:'parent',activeLink:'',sequence:0};
+let total=0,timer,steps=[],cursor=0,waiting=false,seen=new Set();
+const reducedMotion=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function shortId(value){const text=String(value??'');return text.length>20?`${text.slice(0,9)}…${text.slice(-7)}`:text;}
+function identityFor(role,event={}){
+  if(role==='worker')return String(event.taskId||event.agent||event.details?.taskId||'observed');
+  if(role==='tools')return String(event.callId||event.toolName||event.title?.split(' · ')[1]||'observed');
+  return role;
+}
+function actorKey(role,event={}){return role==='worker'||role==='tools'?`${role}:${identityFor(role,event)}`:role;}
+function actorLabel(role,event={}){
+  if(role==='worker')return event.agent||event.details?.agent||'Subagent';
+  if(role==='tools')return event.toolName||event.title?.split(' · ')[1]||'Tool';
+  return roleNames[role]||role;
+}
+function ensureNode(role,event={}){
+  const key=actorKey(role,event);
+  if(!graphState.nodes.has(key))graphState.nodes.set(key,{key,role,label:actorLabel(role,event),identity:identityFor(role,event),state:'idle',lastTitle:'',lastText:'',events:0,order:graphState.sequence++});
+  const node=graphState.nodes.get(key);
+  if(role==='worker'&&event.agent)node.label=event.agent;
+  if(role==='tools'&&event.toolName)node.label=event.toolName;
+  return node;
+}
+function resetGraph(){
+  graphState.nodes.clear();graphState.links.clear();graphState.activeLink='';graphState.sequence=0;graphState.selected='parent';
+  for(const role of ['user','parent','memory','native'])ensureNode(role);
+  renderGraph();
+}
+function relationKey(a,b){return [a,b].sort().join('|');}
+function visualState(status){
+  if(status==='error')return'error';
+  if(status==='interaction_required')return'waiting';
+  if(status==='awaiting settlement')return'ended';
+  if(['settled','completed','returned'].includes(status))return'settled';
+  if(['running','requested'].includes(status))return'running';
+  return'active';
+}
+function updateGraph(event){
+  const source=ensureNode(event.from||'parent',event),target=ensureNode(event.to||'parent',event);
+  const state=visualState(event.status);
+  const owner=event.status==='requested'?target:source;
+  owner.state=state;owner.lastTitle=event.title||'';owner.lastText=event.text||'';owner.events++;
+  if(source.key!==target.key){
+    const key=relationKey(source.key,target.key);
+    graphState.links.set(key,{key,source:source.key,target:target.key,status:event.status||'observed',title:event.title||''});
+    graphState.activeLink=key;
+  }else graphState.activeLink='';
+  renderGraph();
+}
+function graphLayout(){
+  const workers=[...graphState.nodes.values()].filter(node=>node.role==='worker').sort((a,b)=>a.order-b.order);
+  const tools=[...graphState.nodes.values()].filter(node=>node.role==='tools').sort((a,b)=>a.order-b.order);
+  const positions=new Map(),mobile=matchMedia('(max-width:680px)').matches;
+  if(mobile){
+    const ordered=[graphState.nodes.get('user'),graphState.nodes.get('parent'),...workers,...tools,graphState.nodes.get('memory'),graphState.nodes.get('native')].filter(Boolean);
+    const nodeWidth=280,nodeHeight=66,top=28,gap=86;
+    ordered.forEach((node,index)=>positions.set(node.key,{x:25,y:top+index*gap,w:nodeWidth,h:nodeHeight}));
+    return{positions,height:top+ordered.length*gap+8,width:330,mobile,nodeWidth,nodeHeight};
+  }
+  const toolColumns=tools.length>5?2:1,toolRows=Math.max(Math.ceil(tools.length/toolColumns),1);
+  const rows=Math.max(workers.length,toolRows,1),top=64,gap=94,nodeWidth=154,nodeHeight=66,width=toolColumns===2?1000:810;
+  const serviceY=top+rows*gap+34,height=serviceY+112,centerY=top+(rows-1)*gap/2;
+  positions.set('user',{x:18,y:centerY,w:nodeWidth,h:nodeHeight});
+  positions.set('parent',{x:218,y:centerY,w:nodeWidth,h:nodeHeight});
+  workers.forEach((node,index)=>positions.set(node.key,{x:420,y:top+index*gap,w:nodeWidth,h:nodeHeight}));
+  tools.forEach((node,index)=>{const column=Math.floor(index/toolRows),row=index%toolRows;positions.set(node.key,{x:628+column*190,y:top+row*gap,w:nodeWidth,h:nodeHeight})});
+  positions.set('memory',{x:toolColumns===2?628:420,y:serviceY,w:nodeWidth,h:nodeHeight});
+  positions.set('native',{x:toolColumns===2?818:628,y:serviceY,w:nodeWidth,h:nodeHeight});
+  return{positions,height,width,mobile,nodeWidth,nodeHeight};
+}
+function routePath(source,target,index){
+  if(Math.abs(target.x-source.x)<5){
+    const downward=target.y>=source.y,distance=Math.abs(target.y-source.y);
+    if(distance>source.h+30){
+      const right=index%2===0,startX=right?source.x+source.w:source.x,endX=right?target.x+target.w:target.x;
+      const channel=right?318:12,startY=source.y+source.h/2,endY=target.y+target.h/2;
+      return`M${startX} ${startY} H${channel} V${endY} H${endX}`;
+    }
+    const startX=source.x+source.w/2,endX=target.x+target.w/2;
+    const startY=downward?source.y+source.h:source.y,endY=downward?target.y:target.y+target.h;
+    return`M${startX} ${startY} V${endY}`;
+  }
+  const forward=target.x>=source.x;
+  const startX=forward?source.x+source.w:source.x,startY=source.y+source.h/2;
+  const endX=forward?target.x:target.x+target.w,endY=target.y+target.h/2;
+  const jump=Math.abs(endX-startX);
+  if(Math.abs(endY-startY)<2)return`M${startX} ${startY} H${endX}`;
+  if(jump>330){const channel=24+(index%3)*11;return`M${startX} ${startY} V${channel} H${endX} V${endY}`;}
+  const middle=startX+(endX-startX)*.5;
+  return`M${startX} ${startY} H${middle} V${endY} H${endX}`;
+}
+function actorSubtitle(node){
+  switch(node.role){
+    case'worker':return`task · ${shortId(node.identity)}`;
+    case'tools':return`call · ${shortId(node.identity)}`;
+    case'parent':return'current session';
+    case'user':return'human control';
+    case'memory':return'observable calls only';
+    default:return'provider-owned events';
+  }
+}
+function renderGraph(){
+  const svg=$('graph');if(!svg)return;
+  const {positions,height,width,mobile}=graphLayout();svg.setAttribute('viewBox',`0 0 ${width} ${height}`);svg.setAttribute('width',String(width));svg.setAttribute('height',String(height));
+  const lanes=mobile?'':`<g class="lane-labels" aria-hidden="true"><text x="18" y="28">HUMAN</text><text x="218" y="28">ORCHESTRATION</text><text x="420" y="28">SUBAGENTS</text><text x="628" y="28">TOOLS</text></g>`;
+  const edges=[...graphState.links.values()].map((link,index)=>{
+    const source=positions.get(link.source),target=positions.get(link.target);if(!source||!target)return'';
+    const path=routePath(source,target,index),active=link.key===graphState.activeLink;
+    return`<g class="relationship ${active?'is-active':''}"><path class="edge-halo" d="${path}"/><path class="edge" d="${path}" marker-end="url(#${active?'arrowActive':'arrow'})"/>${active&&!reducedMotion()?`<circle class="signal-packet" r="4"><animateMotion dur="1.25s" repeatCount="indefinite" path="${path}"/></circle>`:''}</g>`;
+  }).join('');
+  const nodes=[...graphState.nodes.values()].map(node=>{
+    const box=positions.get(node.key);if(!box)return'';
+    const selected=node.key===graphState.selected,active=[...graphState.links.values()].some(link=>link.key===graphState.activeLink&&(link.source===node.key||link.target===node.key));
+    const sub=actorSubtitle(node);
+    const label=shortId(node.label),state=stateLabels[node.state]||node.state;
+    return`<g class="actor actor-${roleColors[node.role]||'parent'} state-${node.state} ${selected?'is-selected':''} ${active?'is-active':''}" data-node="${attr(node.key)}" tabindex="0" role="button" aria-label="${attr(`${node.label}, ${sub}, ${state}`)}" transform="translate(${box.x} ${box.y})"><rect width="${box.w}" height="${box.h}" rx="10"/><circle class="state-dot" cx="14" cy="15" r="4"/><text class="state-text" x="24" y="18">${esc(state.toUpperCase())}</text><text class="actor-label" x="14" y="40">${esc(label)}</text><text class="actor-id" x="14" y="56">${esc(sub)}</text></g>`;
+  }).join('');
+  const markup=`<svg xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z"/></marker><marker id="arrowActive" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z"/></marker></defs>${lanes}${edges}${nodes}</svg>`;
+  const parsed=new DOMParser().parseFromString(markup,'image/svg+xml'),fragment=document.createDocumentFragment();
+  for(const child of [...parsed.documentElement.childNodes])fragment.append(document.importNode(child,true));
+  svg.replaceChildren(fragment);
+  svg.querySelectorAll('.actor').forEach(element=>{
+    const select=()=>selectActor(element.dataset.node);
+    element.addEventListener('click',select);element.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();select();}});
+  });
+}
+function selectActor(key){
+  const node=graphState.nodes.get(key);if(!node)return;
+  graphState.selected=key;renderGraph();
+  let identity='';if(node.role==='worker')identity=`Task: ${node.identity}`;else if(node.role==='tools')identity=`Call: ${node.identity}`;
+  $('child').textContent=[node.label,identity,`State: ${stateLabels[node.state]||node.state}`,node.lastTitle,node.lastText].filter(Boolean).join('\n');
+  $('contextDetails').open=true;
+}
+
+function applyTheme(theme){
+  if(!theme?.colors)return;
+  const root=document.documentElement,allowed=/^#[0-9a-f]{6}$/i;
+  for(const [name,value]of Object.entries(theme.colors))if(allowed.test(value))root.style.setProperty(`--pi-${name.replace(/[A-Z]/g,letter=>`-${letter.toLowerCase()}`)}`,value);
+  root.dataset.piTheme=theme.name||'Pi theme';
+  $('themeName').textContent=theme.name||'Pi theme';
+  const page=theme.colors.page;
+  if(allowed.test(page)){const [r,g,b]=[1,3,5].map(index=>parseInt(page.slice(index,index+2),16));root.style.colorScheme=(r*299+g*587+b*114)/1000>145?'light':'dark';}
+}
+function append(event){
+  if(event.kind==='theme'){applyTheme(event.details?.theme);return;}
+  if(event.kind==='session_start'){$('child').textContent='Subagent context will appear after delegation.';}
+  if(event.id&&seen.has(event.id))return;if(event.id)seen.add(event.id);
+  if(seen.size>1000)seen.delete(seen.values().next().value);
+  if(!total)$('log').textContent='';total++;
+  updateGraph(event);
+  const row=document.createElement('article'),state=visualState(event.status);
+  row.className=`event event-${state} ${event.from==='user'?'event-user':''} ${event.from==='worker'||event.to==='worker'?'event-worker':''}`;
+  const ids=[event.taskId?`task · ${event.taskId}`:'',event.callId?`call · ${event.callId}`:''].filter(Boolean);
+  const header=document.createElement('header'),heading=document.createElement('h3'),status=document.createElement('span');
+  heading.textContent=event.title??'';status.className='event-status';status.textContent=event.status??'observed';header.append(heading,status);row.append(header);
+  if(ids.length){const identity=document.createElement('div');identity.className='identity-row';for(const id of ids){const code=document.createElement('code');code.textContent=id;identity.append(code)}row.append(identity)}
+  const text=document.createElement('p');text.textContent=event.text??'';if(event.mode&&event.mode!=='demo')text.dataset.raw='';row.append(text);
+  if(event.details){const details=document.createElement('details'),summary=document.createElement('summary'),pre=document.createElement('pre');summary.textContent='Observable details';pre.dataset.raw='';pre.textContent=JSON.stringify(event.details,null,2);details.append(summary,pre);row.append(details)}
+  $('log').append(row);while($('log').children.length>200)$('log').firstChild.remove();$('log').scrollTop=$('log').scrollHeight;
+  const source=ensureNode(event.from||'parent',event),target=ensureNode(event.to||'parent',event);
+  $('handoff').textContent=`${source.label} → ${target.label}`;$('phase').textContent=event.phase??event.status??'OBSERVED';$('time').textContent=event.time?new Date(event.time).toLocaleTimeString():'SCRIPTED EXAMPLE';$('count').textContent=`${total} events`;
+  if(event.from==='user'){$('prompt').toggleAttribute('data-raw',Boolean(event.mode&&event.mode!=='demo'));$('prompt').textContent=event.text;}
+  if(event.from==='worker'||event.to==='worker'){graphState.selected=actorKey('worker',event);selectActor(graphState.selected);}
+  if(event.status==='interaction_required')$('prompt').textContent='Waiting for a human decision. Reply in the Gentle terminal.';
+  return row;
+}
+
+const ev=(from,to,title,text,phase='ODD',extra={})=>({from,to,title,text,phase,status:'illustrative',mode:'demo',...extra});
+const demos=[
+ [ev('user','parent','User request','Fix “Export flie” in the report help.'),ev('parent','tools','Inspect the existing text','Read the help file and inspect its diff.', 'ODD',{toolName:'read',callId:'demo-read'}),ev('tools','parent','Bounded change','One documentation typo. No executable behavior changes.','ODD',{toolName:'read',callId:'demo-read'}),ev('parent','tools','Edit the word','Export flie → Export file','ODD',{toolName:'edit',callId:'demo-edit'}),ev('native','parent','Review assessment','Passive change; inspect the content. No review perspectives needed.','RDD'),ev('parent','user','Result','Corrected the typo and checked the diff. No artificial delegation or questions.')],
+ [ev('user','parent','User request','Add CSV export using the current report workflow.'),ev('parent','worker','Delegate exploration','Map filters, permissions and export integration points. Read only.','ODD',{agent:'gentle-ai-explore',taskId:'csv-explore'}),ev('worker','parent','Exploration result','Two valid export scopes exist. Product intent must choose one.','ODD',{agent:'gentle-ai-explore',taskId:'csv-explore'}),ev('parent','memory','Record intent','Save the ODD task document and its Engram mirror.'),ev('parent','worker','Delegate implementation','Keep existing permissions. Use configured TDD and the targeted runner.','ODD',{agent:'gentle-ai-worker',taskId:'csv-apply'}),ev('worker','parent','Worker asks the parent','Should export contain filtered rows or all accessible rows?','ODD',{status:'interaction_required',agent:'gentle-ai-worker',taskId:'csv-apply'}),ev('parent','user','Choose the export scope','The parent relays the product decision to the user.','ODD',{question:true}),ev('parent','worker','Resume with confirmed scope','Read the updated ODD contract before implementing.','ODD',{agent:'gentle-ai-worker',taskId:'csv-apply'}),ev('worker','tools','RED','Write and run a failing CSV test. Confirm failure is caused by missing behavior.','TDD',{agent:'gentle-ai-worker',taskId:'csv-apply',toolName:'bash',callId:'csv-test'}),ev('tools','worker','GREEN','Implement the minimum behavior. Run the same targeted test.','TDD',{agent:'gentle-ai-worker',taskId:'csv-apply',toolName:'bash',callId:'csv-test'}),ev('worker','tools','TRIANGULATE / REFACTOR','Check quoting, empty rows and permissions; refactor with green tests.','TDD',{agent:'gentle-ai-worker',taskId:'csv-apply',toolName:'bash',callId:'csv-test'}),ev('worker','parent','agent_end','Response received; settlement is still pending.','TDD',{status:'awaiting settlement',agent:'gentle-ai-worker',taskId:'csv-apply'}),ev('worker','parent','agent_settled','Deliver structured result and focused validation evidence.','TDD',{status:'settled',agent:'gentle-ai-worker',taskId:'csv-apply'}),ev('native','parent','Review checkpoint','Follow the native candidate identity and applicable consent.','RDD'),ev('parent','user','Result','Export is implemented and the observed checks are reported. Publishing requires its own authorization.')],
+ [ev('user','parent','User request','Users from tenant A can access reports from tenant B. Fix isolation.'),ev('parent','worker','Bound the fix','Document isolation criteria; delegate only the authorized surfaces.','ODD',{agent:'gentle-ai-worker',taskId:'tenant-fix'}),ev('worker','tools','Reproduce and fix','RED reproduces cross-tenant access. GREEN checks the tenant. Add alternate cases.','TDD',{agent:'gentle-ai-worker',taskId:'tenant-fix',toolName:'bash',callId:'tenant-tests'}),ev('worker','parent','Return evidence','Return the scoped patch and test results.','ODD',{agent:'gentle-ai-worker',taskId:'tenant-fix'}),ev('native','worker','Four review perspectives','Risk, Resilience, Readability and Reliability inspect the same frozen candidate.','RDD',{agent:'reviewers',taskId:'review-batch'}),ev('worker','native','Finding','The cache key omits the tenant. Reproduction evidence supports the claim.','RDD',{agent:'review-risk',taskId:'review-batch'}),ev('native','worker','Refute the claim','Check the allegation against the actual candidate and evidence.','RDD',{agent:'refuter',taskId:'review-batch'}),ev('parent','worker','Bounded remediation','Add tenant identity to the cache key and a regression test.','RDD',{agent:'jd-fix-agent',taskId:'tenant-remediation'}),ev('worker','tools','Regression check','Reproduce two tenants with the same report ID; fix and rerun.','TDD',{agent:'jd-fix-agent',taskId:'tenant-remediation',toolName:'bash',callId:'tenant-regression'}),ev('native','parent','Directed validation and ACK','Validate the original criterion and repair regressions. Consume native authority.','RDD'),ev('parent','user','Result','Isolation and the cache key are corrected. Review approval does not authorize publication.')],
+ [ev('user','parent','User request','Continue yesterday’s export. Keep TDD disabled and use configured checks.'),ev('parent','memory','Recover task context','Read the ODD document and attempt memory retrieval.'),ev('memory','parent','Memory unavailable','Do not claim that the Engram mirror is synchronized.','ODD',{status:'error'}),ev('parent','tools','Inspect actual state','Read the repository, task document and existing evidence.','ODD',{toolName:'read',callId:'resume-read'}),ev('parent','worker','Relaunch bounded work','Pass recovered intent and current constraints. Do not invent an active child session.','ODD',{agent:'gentle-ai-worker',taskId:'resume-export'}),ev('worker','tools','Configured verification','Run the configured build and focused checks; do not label this as RED/GREEN TDD.','ODD',{agent:'gentle-ai-worker',taskId:'resume-export',toolName:'bash',callId:'resume-check'}),ev('worker','parent','Return result','Return validation evidence and mark the memory mirror as pending.','ODD',{agent:'gentle-ai-worker',taskId:'resume-export'}),ev('parent','user','Result','Task resumed from the document. Memory recovery remains pending.')]
+];
+function pause(){$('graph').querySelectorAll('animateMotion').forEach(element=>element.remove());clearTimeout(timer);timer=undefined;$('play').textContent='Play demo';}
+function next(){if(waiting||cursor>=steps.length){pause();return;}const event=steps[cursor++],row=append(event);if(event.question){pause();waiting=true;$('prompt').textContent='Choose below to return a decision through the parent.';const choices=document.createElement('div');choices.className='choices';for(const label of ['Filtered rows','All accessible rows']){const button=document.createElement('button');button.textContent=label;button.onclick=()=>{choices.remove();waiting=false;append(ev('user','parent','User decision',label));steps[cursor]={...steps[cursor],text:`Confirmed scope: ${label}. Update the ODD task, retain permissions, then continue.`};$('prompt').textContent=label;};choices.append(button)}row.append(choices)}if(cursor===steps.length)pause();}
+function reset(){pause();steps=demos[+$('scenario').value].map(event=>({...event}));cursor=0;total=0;waiting=false;seen.clear();$('log').innerHTML='<div class="empty"><strong>Watch the conversation here.</strong><span>The map follows each observable handoff.</span></div>';$('count').textContent='0 events';$('prompt').textContent='Choose an example and press Play demo.';$('child').textContent='Delegations, questions and returned results appear here. Child-internal steps remain hidden unless the runtime exposes them.';resetGraph();}
+function play(){if(timer){pause();return;}if(cursor>=steps.length)reset();function tick(){next();if(!waiting&&cursor<steps.length){$('play').textContent='Pause';timer=setTimeout(tick,+$('speed').value)}}tick()}
+$('play').onclick=play;$('step').onclick=()=>{pause();next()};$('reset').onclick=reset;$('scenario').onchange=reset;reset();
+let resizeTimer;addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(renderGraph,80)});
+
+function parseFeedData(data){try{const value=JSON.parse(data);return value&&typeof value==='object'?value:null}catch{return null}}
+const key=location.hash.slice(1);
+if(key&&location.protocol!=='file:'){
+ for(const id of ['scenario','play','step','reset','speed'])$(id).disabled=true;
+ $('connection').textContent='CONNECTING';$('notice').textContent='Live observable events · reply and approve actions in the Gentle terminal';$('prompt').textContent='Send a message in the Gentle terminal.';
+ const feed=new EventSource(`/events?key=${encodeURIComponent(key)}`);
+ feed.onopen=()=>{$('connection').textContent='LIVE · CONNECTED';$('connection').className='live';document.body.classList.remove('is-disconnected')};
+ feed.addEventListener('mode',event=>{const payload=parseFeedData(event.data);if(!payload){$('notice').textContent='Ignored malformed observer mode data.';return}const mode=payload.mode;if(mode==='workspace'){$('connection').textContent='WORKSPACE · CONNECTED';document.body.classList.add('workspace-mode');window.startWorkspaceTerminal(key);}else if(mode!=='live'){$('connection').textContent='TEST FEED · SCRIPTED';$('notice').textContent='Synthetic integration test feed — not a real agent session'}});
+ feed.addEventListener('gap',()=>{$('notice').textContent='Reconnected; older events exceeded the 500-event buffer.'});
+ feed.onmessage=event=>{const payload=parseFeedData(event.data);if(payload)append(payload);else $('notice').textContent='Ignored a malformed observer event.'};
+ feed.onerror=()=>{$('connection').textContent='DISCONNECTED · RETRYING';$('connection').className='';$('phase').textContent='NO LIVE SIGNAL';document.body.classList.add('is-disconnected');$('graph').querySelectorAll('animateMotion').forEach(element=>element.remove())};
+}
+</script>
+</body>
+</html>
