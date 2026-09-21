@@ -40,17 +40,19 @@ The browser does not capture an already-running terminal: it launches a **new Pi
 - The task executed by Pi/Gentle consumes the provider's normal tokens, including any subagents that the existing workflow launches. Asking an agent for extra explanatory commentary would also consume tokens; the viewer does not do that.
 - No extra subagent is launched to explain the workflow. Only observable messages, prompts and calls are represented. Private thinking blocks never enter the structured feed. The embedded terminal remains native Pi output: its own display settings apply.
 
-## Linux and macOS support
+## Platform boundary
 
-Upstream was checked on 2026-09-20:
+Validated on 2026-09-20:
 
-| Platform | Gentle AI upstream | This plugin |
+| Platform | Status | Boundary |
 |---|---|---|
-| Linux amd64 / arm64 | Published binaries | Observer and Workspace target; real PTY/Pi startup smoke passed on Linux amd64 |
-| macOS amd64 / arm64 | Published binaries; Homebrew route documented | Same Node/PTY implementation; local Mac acceptance still required |
-| Windows | README documents source installation with Go 1.25.10+ | Workspace explicitly declines until separately validated; observer remains the existing portable Node approach |
+| Windows Observer | **PASS** | One credentialed read/edit/read task reached parent response and settlement. The complete harness is still **FAIL** because runtime-created fixture paths violated its post-settlement assertion. |
+| Native Windows Workspace | **NOT APPLICABLE** | Explicitly declined by the current implementation. |
+| WSL2 Ubuntu x86_64 Workspace | **PASS** | Real Pi 0.85.1 startup, PTY/browser interaction, resize, EN/ES, second-tab exclusion, reconnect and owned-process Stop; no model prompt. This is not native Linux acceptance. |
+| Native Linux amd64 / arm64 | **NOT RUN** | No native hardware/distro acceptance evidence. |
+| macOS amd64 / arm64 | **NOT RUN** | PTY behavior, native dialogs and Homebrew packaging remain unverified. |
 
-Sources: [release targets](https://github.com/Gentleman-Programming/gentle-ai/blob/main/.goreleaser.yaml), [installation](https://github.com/Gentleman-Programming/gentle-ai#-get-started), [Pi integration](https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md), [node-pty](https://github.com/microsoft/node-pty), [xterm.js](https://github.com/xtermjs/xterm.js).
+Sources for upstream targets, not acceptance evidence: [release targets](https://github.com/Gentleman-Programming/gentle-ai/blob/main/.goreleaser.yaml), [installation](https://github.com/Gentleman-Programming/gentle-ai#-get-started), [Pi integration](https://github.com/Gentleman-Programming/gentle-ai/blob/main/docs/pi.md), [node-pty](https://github.com/microsoft/node-pty), and [xterm.js](https://github.com/xtermjs/xterm.js).
 
 Workspace uses Node 24+, `node-pty`, `ws`, `@xterm/xterm` and its fit addon. Browser assets are served locally; there is no CDN dependency. Native PTY compilation may require the platform's C++ build tools and Python. Exact dependency versions are pinned in `live/package.json`; the selected node-pty version is a prerelease and must be reviewed before an upstream release. Observer alone does not import the optional PTY dependencies.
 
@@ -70,6 +72,8 @@ npm --prefix live run test:workspace
 npm --prefix live run test:visual
 ```
 
-The workspace smoke starts a real Pi with an isolated temporary profile and confirms PTY output plus the observed session_start event. It sends no model prompt. It passed here on Linux with Pi 0.85.1, Node 24.19.0, node-pty 1.2.0-beta.15, ws 8.21.0 and xterm 6.0.0 / fit 0.11.0 installed locally. This does **not** validate a credentialed Gentle task, browser rendering, all Linux architectures or macOS.
+The workspace smoke starts a real Pi with an isolated temporary profile and confirms PTY output plus the observed session_start event. It sends no model prompt. It passed here on Linux with isolated Pi 0.85.1, Node 24.18.0, node-pty 1.2.0-beta.15, ws 8.21.0 and xterm 6.0.0 / fit 0.11.0 installed locally. This does **not** validate a credentialed Gentle task, browser rendering, all Linux architectures or macOS.
 
-The browser suite now also checks EN/ES switching. Browser execution remains pending because Chromium was unavailable. Run the complete real-task and visual acceptance matrix in LOCAL_AGENT_HANDOFF.md, plus embedded terminal keyboard input, native approval interaction, resize, reconnect, two-tab controller exclusion, stop, session switch and both languages on Linux and macOS. Save sanitized screenshots/video and distinguish synthetic feeds, startup smoke, and real model execution.
+The Playwright browser suite passed 8/8 on Windows and its screenshots/video were manually inspected. Real WSL2 Workspace browser checks also passed for explicit Start, Unicode input, resize, EN/ES preservation, second-tab exclusion, reconnect/replay and owned-process Stop. The fixed-size recording's gray canvas after deliberate viewport resize is unused canvas, not clipping.
+
+One credentialed Windows Observer task performed the intended README fix through actual read/edit/read calls, produced the parent response and reached settlement. Its complete harness remains **FAIL** because Gentle/Pi created `.atl/` and `.gitignore` and Pi Lens created `.pi-lens-probe-home`; no raw recording was retained. Delegation, human prompt, TDD, RDD, memory-unavailable, parallel-child and error cases remain **NOT RUN** in that real session. See `VISUAL_QA_REPORT.md` in the source repository for artifacts and the complete matrix.

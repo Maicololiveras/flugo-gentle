@@ -1,122 +1,111 @@
-# Finish Gentle Live integration and validate it visually
+# Review handoff: independent Gentle Live plugin
 
-Continue the implementation from `Maicololiveras/flugo-gentle`, branch `feat/live-observer-english`, PR #1. The user wants an English simulator that also displays observable work from a real Gentle session, packaged for the Gentle AI repository. Finish the integration, run the browser checks, fix defects, and record evidence. Do not report success from mocked events alone.
+The independent Pi plugin is implemented and staged successfully; it is **not** integrated into Gentle AI's adapter or official release packaging. Automated, synthetic browser, real WSL2 Workspace-startup, and one credentialed Windows Observer task have been exercised. Read the source repository's root `VISUAL_QA_REPORT.md` first for the complete PASS / FAIL / NOT RUN / NOT APPLICABLE record.
 
-## Updated requirement: two modes and EN/ES
+## Review path
 
-Read [TWO_MODES.md](TWO_MODES.md) before implementation. Prefer Workspace (native Pi terminal embedded in the local browser with the live graph alongside), and preserve Observer for existing terminal sessions. EN/ES is a local UI/demo dictionary; native payloads keep their original language. No explanatory model calls may be added. Linux and macOS are the target platforms.
+1. Review `live/lib/server.mjs`, `live/qa/visual.mjs`, and `live/tests/observer.test.mjs` for the QA-driven fixes.
+2. Review `VISUAL_QA_REPORT.md`, especially the real-task harness failure and platform matrix.
+3. Confirm staging remains confined to `plugins/gentle-live-observer/**` in a disposable Gentle AI checkout.
+4. Treat native Linux/macOS, official packaging, and deeper child visibility as remaining work—not as implied acceptance.
 
-A real isolated Pi 0.85.1 startup smoke now passes on Linux: PTY output and session_start reach the workspace. No model prompt was sent. This does not replace visual or credentialed Gentle acceptance. Nine automated tests passed after these additions.
+## Verified state
 
-## Current state
+| Area | Outcome |
+|---|---|
+| Node tests | **PASS** — 10/10 |
+| Simulator and demo build | **PASS** |
+| Staging apply/reapply | **PASS** — 22 files; identical reapply reports all unchanged |
+| Staged-checkout functional load | **PASS** — under isolated Pi 0.85.1, `/gentle-live` registered, its page returned HTTP 200, and SSE opened in `mode: live`; no model was used |
+| Temporary node-pty harness exit | **FAIL** — it emitted PASS JSON for the functional checks but retained a Windows ConPTY/node-pty handle until timeout |
+| Isolated Pi install/reinstall/remove | **PASS** — unrelated settings preserved; no model session |
+| Synthetic Playwright | **PASS** — 8/8; screenshots/video manually inspected |
+| WSL2 Workspace browser acceptance | **PASS** — real Pi startup/PTY, no model prompt, not a real task |
+| Windows Observer credentialed task | Functional task **PASS**; complete harness **FAIL** after settlement because runtime-created fixture paths violated its strict assertion |
+| Windows Workspace | **NOT APPLICABLE** by current design |
+| Native Linux and macOS | **NOT RUN** |
+| Adapter/installer/release integration | **NOT RUN**; no Gentle AI source changes |
 
-| Area | Implemented | Remaining |
-|---|---|---|
-| Bilingual UI | EN/ES dictionary, four examples, scope decision, animated SVG, responsive CSS | Inspect actual screenshots and video; fix any overlap or motion defects |
-| Pi plugin | `package.json` with `pi.extensions`, `/gentle-live` and stop | Load inside the user's installed Gentle profile; check compatibility |
-| Event bridge | Input, visible messages, tool requests/progress/results, prompts, settlement | Validate real tool payloads and any blocked-call behavior |
-| Child visibility | Parent-visible Gentle task IDs, messages, progress and results | Decide whether deeper child events are required; implement an explicit upstream bridge if so |
-| Gentle AI integration | Repeatable staging into `plugins/gentle-live-observer` | Optional install/update/uninstall workflow in Gentle AI's actual adapter/TUI |
-| Automated checks | Nine adapter/workspace/staging/dictionary tests and existing simulator tests passed | Run again after changes |
-| Visual test runner | Playwright screenshots, recordings and JSON report | Not executed successfully here: no Chromium installation available |
-| Real session | No model credentials or runtime session used here | Required before ready-for-review |
-| Upstream | No official Gentle AI PR or approved issue established | Follow current repository contribution policy |
+The real task showed actual input, read/edit/read calls and results, parent response, `agent_end`, and `agent_settled`. It corrected only the intended README content. Gentle/Pi also created `.atl/` and `.gitignore`; Pi Lens created `.pi-lens-probe-home`. Sanitized browser evidence was retained; raw recording, PTY/session data, access key, and fixture were not.
 
-## 1. Inspect and stage
+## Modes and visibility boundary
 
-Read the target checkout's `AGENTS.md` and applicable skills first. Inspect uncommitted changes and preserve them. Review these source files in order:
+Read [TWO_MODES.md](TWO_MODES.md) for operation details.
 
-1. `live/extensions/observer.ts`: passive Pi subscription lifecycle.
-2. `live/lib/normalize.mjs`: visible content and task identity mapping.
-3. `live/lib/server.mjs`: loopback server, key, replay and shutdown.
-4. `live/web/app.js`: demo decisions and live graph rendering.
-5. `integrations/gentle-ai/stage-plugin.mjs`: staging, not a runtime plugin loader.
+- **Observer** attaches a read-only browser feed to an existing Pi session.
+- **Workspace** launches one owned Pi process in a browser-embedded terminal beside the graph.
+- EN/ES is a bundled local UI dictionary. Native terminal and event payloads are not model-translated.
+- No model call, subagent, or hidden reasoning channel is added by the visualizer.
+- Child activity is visible only when the runtime surfaces it to the parent through progress, messages, or results. Full child-internal tool/token visibility is not claimed.
 
-From the `flugo-gentle` checkout:
+## Stage into a disposable Gentle AI checkout
+
+From the `flugo-gentle` repository:
 
 ```sh
 node integrations/gentle-ai/stage-plugin.mjs /absolute/path/to/gentle-ai
 node integrations/gentle-ai/stage-plugin.mjs /absolute/path/to/gentle-ai --apply
 ```
 
-Windows PowerShell accepts a quoted target such as `"C:\dev\gentle-ai"`. The script validates `go.mod`, rejects symlink destinations, previews by default, and refuses to overwrite differing files. It copies a complete local development package, including this handoff and visual tests. It does not edit Pi settings or start an agent. Review differences manually before restaging an edited target.
+The script validates `go.mod`, rejects symlink paths, previews by default, refuses to overwrite differing destination files, and writes only `plugins/gentle-live-observer/**`. Identical reapplication is safe. It does not edit Pi settings, Gentle AI adapters/installers, or start an agent.
 
-## 2. Load the real plugin
+The verified disposable target was Gentle AI `main` at `f0782af2803a8192477c18d2186795e9c9daa6c3`. The source baseline was `2aa79665c9700d735a429029ef0be762f67d2e26` on `feat/live-observer-english`. Loading from this staged source checkout passed functionally; the temporary node-pty harness did not shut down cleanly. Neither result is evidence of official release packaging.
 
-From the target `gentle-ai` checkout:
+## Load through Pi
+
+From the staged package:
 
 ```sh
 pi install ./plugins/gentle-live-observer
 ```
 
-Restart the existing Gentle session or `/reload`, then run `/gentle-live`. Open its generated URL in a local browser and keep the terminal visible beside it. `/gentle-live stop` must close the feed. A session switch reloads extensions: run `/gentle-live` again for the new URL.
+Restart Pi or run `/reload`, then run `/gentle-live`. Use `/gentle-live stop` to close the observer. This is Pi's package mechanism; there is no claimed `gentle-ai plugin install` command.
 
-This is a **Pi extension package hosted in the Gentle AI repository**. There is no invented `gentle-ai plugin install` command or Codex manifest. Gentle AI's current `internal/agents/pi/adapter.go` owns `managedPackageSources` and settings merging; inspect that implementation before integrating optional discovery/installation. Do not add an unpublished npm identifier to the managed list.
-
-## 3. Finish repository integration
-
-Implement an explicitly selected optional plugin using Gentle AI's existing component/adapter patterns. Verify current code rather than relying on stale line numbers.
-
-- Resolve bundled package location independently of the caller's working directory. Document how release artifacts carry the plugin if installing from a binary rather than a source checkout.
-- Add opt-in install, repeat-install, update and removal coverage. Preserve unrelated Pi settings and respect `PI_CODING_AGENT_DIR`.
-- Keep the observer disabled until the user runs `/gentle-live`. Loading the plugin must not spawn a model, consume credentials or start a browser/server automatically.
-- Ensure removal stops future loading without removing Gentle Shell, Engram or user configuration. Verify the installed Pi CLI's actual removal syntax before documenting it.
-- Decide a source-of-truth policy: retain the package here and import versioned releases, or move ownership upstream. Avoid two silently diverging implementations.
-- If adding child-internal observation, inspect Gentle Shell's `lib/agents-runner.ts`, `lib/agents-protocol.ts` and `extensions/gentle-agents.ts`. Add a bounded, opt-in visible-event bridge with parent/session/task/call identity. Do not repurpose restricted runtime metrics, read thinking blocks, infer RED/GREEN from prose, or mark completion on `agent_end`.
-
-Keep the work modular. Changes to the Go installer belong in Gentle AI; child runner hooks belong in Gentle Shell; Pi events are the runtime boundary.
-
-## 4. Execute automated visual QA
-
-From the staged plugin directory (or from `live/` in the source repo):
+For Workspace:
 
 ```sh
+cd plugins/gentle-live-observer
 npm install
-npx playwright install chromium
-npm test
-npm run test:visual
+npm run workspace -- --cwd /absolute/path/to/project
 ```
 
-For headed inspection: `HEADED=1 npm run test:visual` on POSIX; in PowerShell set `$env:HEADED='1'` before running it. Use a supported local browser environment; do not weaken execution restrictions to make a hosted test pass.
+Open the loopback URL and choose **Start Pi**. The plugin does not configure providers, send a prompt, or start the process before that action.
 
-The runner writes `qa-artifacts/report.json`, desktop screenshots for all four examples, iPad/mobile screenshots, live test-feed and disconnected screenshots, and browser recordings. The live browser test uses **synthetic events** and labels them as such. Inspect every image and recording; passing assertions alone does not establish visual quality. If browser setup fails, keep the failed report and record the blocker.
+## Validation commands
 
-Check readable typography, clipping, scroll behavior, graph directions, active states, long tool output, keyboard focus, reduced-motion behavior, pause behavior and mobile layout. Fix defects and rerun affected checks. Never commit credentials, the live access URL/key, or arbitrary real-project transcripts in artifacts.
+```sh
+npm test
+npm run test:live
+npm run build:live
+npm --prefix live run test:visual
+npm --prefix live run test:workspace
+```
 
-## 5. Run real end-to-end cases
+The first four applicable checks passed on Windows; Workspace intentionally declines native Windows. `test:workspace` and browser Workspace acceptance passed inside Ubuntu WSL2 with an isolated Pi 0.85.1. WSL2 is not native Linux hardware/distro acceptance.
 
-Create a disposable Git project with no secrets and use the user's already configured model profile. Record actual versions (`node --version`, `pi --version`, `gentle-ai --version`, installed gentle-pi version), OS, commit SHAs and effective TDD/RDD/memory configuration. Do not invent versions for tools lacking a version flag.
+Generated browser evidence lives in ignored `live/qa-artifacts/`. Labels distinguish:
 
-| Case | Exercise | Evidence required |
-|---|---|---|
-| Small edit | Ask to fix one typo in a fixture README | Input → tool call → actual result → final response; no forced delegation |
-| Delegation | Ask Gentle to use an available exploration worker on the fixture | Actual task ID and returned result; correct parent/worker routing |
-| Human question | Give a fixture task with a genuine unresolved export scope | Child query if emitted → parent prompt → answer in terminal → continuation |
-| TDD | Enable configured TDD on a small executable fixture change | Actual failing and passing test output; no fabricated TDD phases |
-| RDD | Exercise an applicable review checkpoint with native consent | Frozen candidate and returned verdict evidence, or honest not-triggered status |
-| Memory unavailable | Use a disposable profile without a working memory connection | Actual failure and document-based recovery; no fake synchronization |
-| Interruption | Stop observer, restart, reload browser; switch Pi session | Disconnection, fresh key, correct replay and no mixed-session history |
-| Error/parallelism | Trigger a harmless failed read and simultaneous child tasks if supported | Error stays an error; separate task/call identities remain inspectable |
+- **SYNTHETIC** scripted browser feed;
+- **REAL PI STARTUP / NO MODEL / NOT TASK** WSL2 Workspace evidence;
+- **REAL Gentle/Pi task / sanitized** Windows Observer evidence.
 
-If the model does not naturally emit a required case, report that case as not exercised and adjust a legitimate fixture or configuration. Never insert synthetic events into a recording labeled real. Keep user decisions and action authorization in the terminal.
+The fixed-size Workspace video shows gray unused canvas after a deliberate viewport resize; screenshots confirm the UI itself is not clipped.
 
-## Embedded-terminal acceptance (additional)
+## Remaining acceptance work
 
-Run `npm run test:workspace` from the plugin first. Run the actual Workspace on Linux and macOS, then verify Start Pi is required, keyboard input reaches Pi, native dialogs work, resize/Unicode are correct, reconnect does not spawn a second Pi, a second tab cannot control input, and Stop Pi terminates only the owned process. Verify EN/ES switching preserves active decisions and terminal contents, and real output is never translated by a model. Inspect whether parent messages show enough observable decision context; document anything the runtime does not expose.
+| Case | State |
+|---|---|
+| Delegation and child identity in a credentialed task | NOT RUN |
+| Human prompt/answer continuation | NOT RUN |
+| Configured TDD RED/GREEN | NOT RUN |
+| Native RDD consent/review | NOT RUN |
+| Memory-unavailable recovery | NOT RUN |
+| Parallel children and real error propagation | NOT RUN |
+| Native Linux amd64/arm64 | NOT RUN |
+| macOS amd64/arm64, PTY, native dialogs, Homebrew | NOT RUN |
 
-## 6. Evidence and completion
+Do not synthesize events into evidence labeled real. Keep human decisions in the terminal and retain only sanitized artifacts.
 
-Create `VISUAL_QA_REPORT.md` in the integration branch with environment, commands, outcomes, artifact paths, defects/fixes and remaining limits. Use PASS / FAIL / NOT RUN / NOT APPLICABLE separately. Include a short real-session recording and sanitized screenshots for desktop and iPad; confirm generated browser test recordings are labeled synthetic.
+## Packaging and upstream boundary
 
-Completion requires:
-
-- [ ] Plugin loads from the Gentle AI checkout and the optional installation flow is documented/tested.
-- [ ] Automated adapter and browser assertions pass.
-- [ ] Every screenshot/recording has been manually inspected; discovered layout/interaction defects are fixed.
-- [ ] A real credentialed Gentle/Pi session has been observed successfully.
-- [ ] Parent/child identity, human prompts, errors and settlement match the actual session.
-- [ ] Child-internal coverage gaps are fixed or explicitly documented and accepted; never claim full visibility when unavailable.
-- [ ] Stop/restart/session switching and removal preserve normal Gentle behavior.
-- [ ] Contribution checks pass before marking a PR ready.
-
-At the inspected revision, `skills/branch-pr/SKILL.md` requires an issue with `status:approved` for an official Gentle AI PR and a 400-changed-line budget unless a maintainer-authorized exception applies. Recheck current policy. Do not self-assign protected approval labels or treat the Discord screenshot as an approved issue. Split delivery into reviewable units. The existing PR #1 is in the user's `flugo-gentle` repository, not upstream.
+Official Gentle AI release archives do not currently include `plugins/**`. A staged source checkout therefore does not prove binary-release installation. Any future opt-in discovery, install/update/remove UI, or bundled-path resolution belongs in Gentle AI and requires its own tests and maintainer review. No adapter/installer source changes, official upstream issue, approval, PR, or release are claimed here.

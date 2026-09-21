@@ -1,6 +1,8 @@
-# Stage the plugin in Gentle AI
+# Stage the independent plugin in Gentle AI
 
-The visualizer is a Pi extension package. This integration stages it under `gentle-ai/plugins/gentle-live-observer` so a local agent can complete the optional Gentle AI installer integration and visual acceptance tests.
+Gentle Live is a standalone Pi extension package. This integration copies it into `gentle-ai/plugins/gentle-live-observer` for local review; it does not modify Gentle AI's adapter, installer, TUI, or settings.
+
+## Stage safely
 
 From this repository:
 
@@ -9,14 +11,23 @@ node integrations/gentle-ai/stage-plugin.mjs /path/to/gentle-ai
 node integrations/gentle-ai/stage-plugin.mjs /path/to/gentle-ai --apply
 ```
 
+The first command previews. The second writes only missing plugin files. The script refuses symlinks and differing existing destination files; an identical reapply is idempotent. The verified disposable checkout reapply reported all 22 files unchanged.
+
 Then, from the Gentle AI checkout:
 
 ```sh
 pi install ./plugins/gentle-live-observer
 ```
 
-Reload your Gentle session and run `/gentle-live`. Use the URL printed by Pi.
+Reload Pi and run `/gentle-live`. This is Pi's package route; no `gentle-ai plugin install` command is claimed.
 
-Start with [LOCAL_AGENT_HANDOFF.md](LOCAL_AGENT_HANDOFF.md) for exact implementation boundaries, installation work remaining, automated visual tests, real-session cases and evidence requirements. The package already loads through Pi; automatic discovery in Gentle AI's installer and official upstream acceptance remain pending.
+## Verified scope
 
-The preferred embedded-terminal Workspace and existing-session Observer are described in [TWO_MODES.md](TWO_MODES.md), including EN/ES, token cost and verified upstream platforms.
+- **PASS:** 10 Node tests, simulator/build, staging apply/reapply, isolated Pi install/reinstall/remove, synthetic Playwright 8/8, WSL2 Workspace startup/browser checks, the functional behavior of one credentialed Windows Observer task, and a no-model staged-checkout load under isolated Pi 0.85.1 that registered `/gentle-live`, returned page HTTP 200, and opened SSE in `mode: live`.
+- **FAIL:** the temporary node-pty load harness emitted PASS JSON but retained a Windows ConPTY/node-pty handle until timeout; separately, the complete real-task harness rejected `.atl/`, `.gitignore`, `.pi-lens-probe-home`, and the intentionally changed `README.md` after successful settlement.
+- **NOT RUN:** native Linux, macOS, delegation, human prompt, configured TDD, native RDD, memory-unavailable recovery, parallel-child, and runtime-error real-session cases.
+- **NOT APPLICABLE:** native Windows Workspace under the current design.
+
+Read [LOCAL_AGENT_HANDOFF.md](LOCAL_AGENT_HANDOFF.md) for review steps and [TWO_MODES.md](TWO_MODES.md) for operation and visibility boundaries. The complete evidence and artifact classification are in [`../../VISUAL_QA_REPORT.md`](../../VISUAL_QA_REPORT.md).
+
+Official Gentle AI release archives do not currently include `plugins/**`. The staged source-checkout load PASS does not prove official release packaging, and its temporary harness did not exit cleanly. No upstream issue, approval, PR, release, adapter integration, or full child-internal visibility is claimed.
