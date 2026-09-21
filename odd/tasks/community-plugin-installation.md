@@ -27,6 +27,10 @@ Document the exact Gentle Live installation, activation, daily-use, stopping, an
 - [ ] T3 — Implement and open the Gentle AI community-plugin PR
   - Blocked until issue #4823 receives `status:approved` and maintainers select the supported catalog/installation model.
   - After approval, create a policy-compliant branch from current upstream `main`, implement only the approved scope, verify it, push to the contributor fork, and open a linked PR with exactly one `type:*` label.
+- [x] T4 — Preserve a backup-only plugin copy in the contributor fork
+  - Created isolated branch `chore/gentle-live-observer-backup` from upstream `main` at `134409f6`, staged 22 byte-identical plugin files, and pushed only to `Maicololiveras/gentle-ai`.
+  - Verification: 22/22 staging entries unchanged; plugin tests 9 PASS / 1 intentionally skipped / 0 FAIL; package dry run contained 13 intended files; sensitive-content scan PASS; worktree clean after commit.
+  - Commit evidence: `64a2211a` (`chore(plugins): preserve Gentle Live observer backup`). This branch is archival/backup-only and must not be opened as an upstream PR before issue #4823 receives `status:approved`.
 
 ## Progress log
 
@@ -36,3 +40,4 @@ Document the exact Gentle Live installation, activation, daily-use, stopping, an
 - 2026-09-20 — Published the primary step-by-step Live guide in work-unit commit `929cdbb`; independent verification passed all requested checks. Pushed the feature branch and moved `Maicololiveras/flugo-gentle#1` from draft to ready for review.
 - 2026-09-20 — Observer runtime/QA fixes were committed as `ecdf629`; acceptance evidence and integration documentation were committed as `5cd881c`.
 - 2026-09-20 — Added an implementation-ready evidence handoff to upstream issue #4823: `https://github.com/Gentleman-Programming/gentle-ai/issues/4823#issuecomment-5756334660`. The upstream branch/commit/PR remains intentionally blocked until `status:approved`.
+- 2026-09-20 — Preserved the requested backup copy in `Maicololiveras/gentle-ai` branch `chore/gentle-live-observer-backup` at commit `64a2211a`; no PR was opened.
