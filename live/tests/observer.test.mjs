@@ -27,6 +27,20 @@ test('live SSE requires local origin and session key, replays ordered events',as
   const text=new TextDecoder().decode((await reader.read()).value);assert.match(text,/id: 2/);assert.doesNotMatch(text,/id: 1\n/);assert.match(text,/"mode":"live"/);await reader.cancel();
  }finally{await server.close()}
 });
+test('shutdown rejects late requests and remains idempotent without losing authorization state',async()=>{
+ const observer=await startObserver(),u=new URL(observer.url),request={headers:{host:u.host,origin:u.origin}};
+ const first=observer.close(),second=observer.close();
+ assert.equal(first,second);
+ let status,headers,ended=false;
+ observer.server.emit('request',{url:'/',headers:{}},{writeHead(code,value){status=code;headers=value;return this},end(){ended=true;return this}});
+ assert.equal(status,503);assert.equal(headers.Connection,'close');assert.equal(ended,true);
+ await Promise.all([first,second]);assert.equal(observer.close(),first);await observer.close();
+ const events=new URL(`/events?key=${u.hash.slice(1)}`,u.origin);
+ assert.equal(observer.authorized(request,events),true);
+ assert.equal(observer.authorized({...request,headers:{...request.headers,host:'127.0.0.1:1'}},events),false);
+ assert.equal(observer.authorized({...request,headers:{...request.headers,origin:'https://untrusted.example'}},events),false);
+ assert.equal(observer.authorized(request,new URL('/events?key=wrong',u.origin)),false);
+});
 test('Pi extension stays passive, publishes real hook payloads and stops',async()=>{
  const hooks=new Map();let command,url;
  observer({on:(name,handler)=>hooks.set(name,handler),registerCommand:(_,value)=>command=value});
