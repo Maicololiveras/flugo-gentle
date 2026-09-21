@@ -35,3 +35,4 @@ Document the exact Gentle Live installation, activation, daily-use, stopping, an
 - 2026-09-20 — Created upstream feature request #4823. It is open and awaiting maintainer review; no PR may be opened yet.
 - 2026-09-20 — Published the primary step-by-step Live guide in work-unit commit `929cdbb`; independent verification passed all requested checks. Pushed the feature branch and moved `Maicololiveras/flugo-gentle#1` from draft to ready for review.
 - 2026-09-20 — Observer runtime/QA fixes were committed as `ecdf629`; acceptance evidence and integration documentation were committed as `5cd881c`.
+- 2026-09-20 — Added an implementation-ready evidence handoff to upstream issue #4823: `https://github.com/Gentleman-Programming/gentle-ai/issues/4823#issuecomment-5756334660`. The upstream branch/commit/PR remains intentionally blocked until `status:approved`.
