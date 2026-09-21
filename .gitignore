@@ -5,3 +5,4 @@ __pycache__/
 escenas/
 session-frames/
 live/qa-artifacts/
+odd/design/*.archify.html
