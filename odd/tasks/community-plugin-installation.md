@@ -33,5 +33,5 @@ Document the exact Gentle Live installation, activation, daily-use, stopping, an
 - 2026-09-20 — Confirmed the current Gentle AI release does not ship `plugins/**`, its Pi adapter manages a fixed support stack, and community tools are external runtimes rather than vendored Pi plugins.
 - 2026-09-20 — User explicitly confirmed the upstream issue-first approval gate.
 - 2026-09-20 — Created upstream feature request #4823. It is open and awaiting maintainer review; no PR may be opened yet.
-- 2026-09-20 — Published the primary step-by-step Live guide in work-unit commit `929cdbb`; independent verification passed all requested checks. Push remains pending.
+- 2026-09-20 — Published the primary step-by-step Live guide in work-unit commit `929cdbb`; independent verification passed all requested checks. Pushed the feature branch and moved `Maicololiveras/flugo-gentle#1` from draft to ready for review.
 - 2026-09-20 — Observer runtime/QA fixes were committed as `ecdf629`; acceptance evidence and integration documentation were committed as `5cd881c`.
