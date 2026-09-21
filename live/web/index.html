@@ -1,1 +1,85 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Gentle · Behind the session</title><link rel="stylesheet" href="/style.css"></head><body><div class="app"><header><div class="brand">✿ gentle <span>behind the session</span></div><label class="language-label">🌐 <select id="language" aria-label="Language / Idioma"><option value="en">English</option><option value="es">Español</option></select></label><span id="connection" role="status">OFFLINE DEMO</span></header><nav><label>Example <select id="scenario"><option value="0">A small change</option><option value="1">CSV · ask the user</option><option value="2">Authorization · review and repair</option><option value="3">Resume · memory unavailable</option></select></label><button id="play">Play demo</button><button id="step">Next step →</button><button id="reset">Restart</button><select id="speed" aria-label="Playback speed"><option value="2000">1×</option><option value="1000">2×</option><option value="500">4×</option></select><span id="count">0 events</span></nav><main><section class="terminal"><div class="bar"><span>SESSION / PARENT</span><span id="phase">READY</span></div><section id="terminalPanel" hidden><div class="terminal-controls"><b>TERMINAL / PI</b><button id="startPi" disabled>Start Pi</button><button id="stopPi" disabled>Stop Pi</button><button id="reconnectTerminal">Reconnect terminal</button></div><div id="terminalHost" data-raw></div><p id="terminalStatus">Starting terminal…</p><div class="bar">EVENT LOG</div></section><div id="log" aria-live="polite"><div class="empty">Watch the conversation here.<br><span>The graph follows each observable handoff.</span></div></div><div class="composer"><span>❯</span><div id="prompt">Choose an example and press Play demo.</div></div><small id="notice">Scripted examples · no models or tools are executed</small></section><aside><div class="eyebrow">BEHIND THE SCENES</div><h1>Follow the handoff.</h1><p class="muted">User, parent, subagents and tools — one event at a time.</p><svg id="graph" viewBox="0 0 440 345" role="img" aria-label="Event flow between user, parent, subagent, tools, review and memory"></svg><div id="handoff">Waiting for an event</div><div class="eyebrow">SUBAGENT / RETURNED CONTEXT</div><div id="child" class="context">Delegations, requests and returned results appear here. Child-internal steps are visible only when exposed by the runtime.</div><details><summary>What does Live show?</summary><p>Observable input, visible assistant messages, tool calls and results, and Gentle subagent messages. It does not expose private reasoning. ODD, TDD and RDD evidence appears in the actual tool output; the observer does not infer a verdict.</p><p>Respond to real questions in the Gentle terminal. This browser is an observer.</p></details></aside></main><footer><span id="time">READY</span><span>No additional model calls from this viewer</span><span>Gentle AI × Pi <b> / </b> observable events</span></footer></div><script src="/i18n.js"></script><script src="/terminal.js"></script><script src="/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Gentle · Live session map</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#main" aria-label="Gentle live session map">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M16 4v24M4 16h24M7.5 7.5l17 17M24.5 7.5l-17 17"/>
+          <circle cx="16" cy="16" r="4"/>
+        </svg>
+        <span><strong>gentle</strong><small>live session map</small></span>
+      </a>
+      <div class="topbar-actions">
+        <div class="theme-readout" title="Inherited from the active Pi theme">
+          <span class="theme-swatch" aria-hidden="true"></span>
+          <span><small>PI THEME</small><strong id="themeName">Observer default</strong></span>
+        </div>
+        <label class="language-label"><span>Language</span><select id="language" aria-label="Language / Idioma"><option value="en">English</option><option value="es">Español</option></select></label>
+        <span id="connection" role="status">OFFLINE DEMO</span>
+      </div>
+    </header>
+
+    <nav class="demo-controls" aria-label="Scripted demo controls">
+      <label>Example <select id="scenario"><option value="0">A small change</option><option value="1">CSV · ask the user</option><option value="2">Authorization · review and repair</option><option value="3">Resume · memory unavailable</option></select></label>
+      <button id="play">Play demo</button>
+      <button id="step">Next step →</button>
+      <button id="reset">Restart</button>
+      <label class="speed-label">Speed <select id="speed" aria-label="Playback speed"><option value="2000">1×</option><option value="1000">2×</option><option value="500">4×</option></select></label>
+      <span id="count">0 events</span>
+    </nav>
+
+    <main id="main" class="workspace">
+      <section class="activity-panel" aria-labelledby="activityTitle">
+        <div class="section-heading">
+          <h1 id="activityTitle">Observable activity</h1>
+          <span id="phase" class="phase-chip">READY</span>
+        </div>
+
+        <section id="terminalPanel" class="terminal-panel" hidden>
+          <div class="terminal-controls"><b>TERMINAL / PI</b><button id="startPi" disabled>Start Pi</button><button id="stopPi" disabled>Stop Pi</button><button id="reconnectTerminal">Reconnect terminal</button></div>
+          <div id="terminalHost" data-raw></div>
+          <p id="terminalStatus">Starting terminal…</p>
+          <div class="log-divider">EVENT LOG</div>
+        </section>
+
+        <div id="log" class="event-log" aria-live="polite"><div class="empty"><strong>Watch the conversation here.</strong><span>The map follows each observable handoff.</span></div></div>
+        <div class="composer"><span aria-hidden="true">›</span><div id="prompt">Choose an example and press Play demo.</div></div>
+        <p id="notice" class="notice">Scripted examples · no models or tools are executed</p>
+      </section>
+
+      <aside class="map-panel" aria-labelledby="mapTitle">
+        <div class="map-heading">
+          <h2 id="mapTitle">Follow the work, not hidden reasoning.</h2>
+          <div class="state-legend" aria-label="Actor states"><span data-state="running">Running</span><span data-state="waiting">Waiting</span><span data-state="error">Error</span><span data-state="ended">Ended</span><span data-state="settled">Settled</span></div>
+        </div>
+        <p class="map-intro">Each subagent and tool call keeps its emitted task or call identity. Select a node to inspect only the context exposed by the runtime.</p>
+        <div class="graph-frame">
+          <svg id="graph" viewBox="0 0 830 440" role="img" aria-label="Observable event flow between user, parent, subagents, tools, native review and Engram"></svg>
+        </div>
+        <div class="handoff-strip"><span>ACTIVE ROUTE</span><strong id="handoff">Waiting for an event</strong></div>
+        <details id="contextDetails" class="context-card" open>
+          <summary>Observable context</summary>
+          <div id="child" data-raw>Delegations, questions and returned results appear here. Child-internal steps remain hidden unless the runtime exposes them.</div>
+        </details>
+        <details class="scope-note">
+          <summary>What does Live show?</summary>
+          <p>Observable input, visible assistant messages, tool calls and results, and Gentle subagent messages. It does not expose private reasoning. ODD, TDD and RDD evidence appears only when the runtime emits it; the observer does not infer a verdict.</p>
+          <p>Respond to real questions in the Gentle terminal. This browser remains an observer.</p>
+        </details>
+      </aside>
+    </main>
+
+    <footer><span id="time">READY</span><span>No additional model calls from this viewer</span><span>Gentle AI × Pi · observable events</span></footer>
+  </div>
+  <script src="/i18n.js"></script>
+  <script src="/terminal.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

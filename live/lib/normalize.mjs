@@ -30,13 +30,13 @@ export function normalize(type, event = {}) {
     const g = m.details?.gentleAgents;
     const text = visible(m.content);
     if (!text) return null;
-    return {...base, from:g?'worker':'parent', to:g?'parent':'user', title:g ? `${g.agent ?? 'Subagent'} → parent` : 'Parent response', text, taskId:g?.taskId, status:g?.kind === 'query'?'interaction_required':g?.status ?? 'observed', details:g?clean(g):undefined};
+    return {...base, from:g?'worker':'parent', to:g?'parent':'user', title:g ? `${g.agent ?? 'Subagent'} → parent` : 'Parent response', text, taskId:g?.taskId, agent:g?.agent, status:g?.kind === 'query'?'interaction_required':g?.status ?? 'observed', details:g?clean(g):undefined};
   }
   if (type === 'tool_call' || type === 'tool_result') {
     const name = event.toolName ?? 'tool';
-    const target = name.startsWith('subagent_')?'worker': /(^|_)mem_/.test(name)?'memory': /gentle_ai/.test(name)?'native':'tools';
+    const target = name.startsWith('subagent_')?'worker': /(^|_)mem_/.test(name)?'memory': /^gentle_(?:ai|review)/.test(name)?'native':'tools';
     const result = type === 'tool_result', g = event.details?.gentleAgents;
-    return {...base, from:result?target:'parent', to:result?'parent':target, title:`${result?'Result':'Call'} · ${name}`, text:result?visible(event.content):clip(JSON.stringify(clean(event.input ?? {}),null,2)), callId:event.toolCallId, taskId:g?.taskId ?? event.input?.task_id, status:event.isError?'error':g?.status ?? (result?'returned':'requested'), details:clean(event.details)};
+    return {...base, from:result?target:'parent', to:result?'parent':target, title:`${result?'Result':'Call'} · ${name}`, text:result?visible(event.content):clip(JSON.stringify(clean(event.input ?? {}),null,2)), callId:event.toolCallId, taskId:g?.taskId ?? event.input?.task_id, agent:g?.agent ?? event.input?.agent, toolName:name, status:event.isError?'error':g?.status ?? (result?'returned':'requested'), details:clean(event.details)};
   }
   return null;
 }
