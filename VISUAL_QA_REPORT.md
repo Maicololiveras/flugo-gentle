@@ -1,6 +1,6 @@
 # Visual QA outcome: core flows passed; the real-task harness reported a post-settlement failure
 
-The independent plugin passed its 10 Node tests, simulator/build checks, idempotent 22-file staging, isolated Pi package lifecycle, no-model functional load from the staged Gentle AI checkout, synthetic Playwright suite (8/8), and real WSL2 Workspace browser checks. The staged package registered `/gentle-live`, returned its page with HTTP 200, and opened SSE in `mode: live` under isolated Pi 0.85.1. That functional load is **PASS**, while the temporary node-pty harness exit lifecycle is separately **FAIL** because it emitted PASS JSON but retained a Windows ConPTY/node-pty handle until timeout.
+The independent plugin passed its 11 Node tests, simulator/build checks, idempotent staging, isolated Pi package lifecycle, no-model functional load from the staged Gentle AI checkout, all nine current synthetic Playwright checks, and real WSL2 Workspace browser checks. The staged package registered `/gentle-live`, returned its page with HTTP 200, and opened SSE in `mode: live` under isolated Pi 0.85.1. That functional load is **PASS**, while the temporary node-pty harness exit lifecycle is separately **FAIL** because it emitted PASS JSON but retained a Windows ConPTY/node-pty handle until timeout.
 
 One credentialed Windows Observer task also completed its intended README fix and reached settlement. Its acceptance harness is still **FAIL**, not PASS, because startup created `.atl/` and `.gitignore` and Pi Lens created `.pi-lens-probe-home`; the harness rejected those additional fixture paths after settlement.
 
@@ -70,7 +70,7 @@ All retained artifacts are under `live/qa-artifacts/` and are ignored by Git.
 
 ### SYNTHETIC — scripted browser feed, no model
 
-- `report.json` — **PASS**, 8/8 checks.
+- `report.json` — **PASS**, all nine current checks.
 - `demo-1.png` through `demo-4.png`, `spanish.png`, `ipad.png`, `mobile.png`, `live-test-feed.png`, `disconnected.png`.
 - `synthetic-playwright-qa.webm`, `latest-contact-sheet.png`.
 

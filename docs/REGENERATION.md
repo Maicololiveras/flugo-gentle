@@ -1,41 +1,45 @@
-> Material complementario: esta página describe la animación anterior por diagramas. La simulación de terminal actual y su video de 5:57 se documentan en [README](../README.md). El MP4 anterior se puede regenerar, pero no se incluye.
+> Complementary material: this page describes the earlier diagram-based animation. The maintained Live Observer and the archived 5:57 terminal simulation are documented in the [root README](../README.md). The earlier MP4 can be regenerated but is not included.
 
-# Gentle: del pedido a la evidencia
+# Gentle: from request to evidence
 
-Animación de 4:34 minutos, 34 escenas y cuatro ejemplos. Contenido en español. El MP4 tiene explicaciones subtituladas integradas, sin pista de voz.
+This archived 4:34 animation contains 34 scenes and four examples. Its rendered on-screen content is Spanish and it has no voice track; this documentation is English.
 
-## Archivos
+## Files
 
-- `Gentle_ODD_TDD_RDD.mp4`: video H.264 de 1280 × 720, 24 fps.
-- `Gentle_Flujo_Animado.html`: reproductor autónomo sin red, con pausa, velocidad, capítulos, avance por escenas y pantalla completa cuando el navegador la admite.
-- `Gentle_Flujo_Animado.svg`: animación vectorial SMIL. Abrir directamente en un navegador compatible; algunos previsualizadores muestran SVG estático o bloquean animaciones.
-- `fuentes/guion.json`: escenas, textos, relaciones y tiempos editables.
-- `fuentes/fuentes.json`: enlaces fijados a los commits de referencia.
+- `Gentle_ODD_TDD_RDD.mp4` — 1280 × 720 H.264 video at 24 fps.
+- `Gentle_Flujo_Animado.html` — standalone offline player with pause, speed, chapters, scene stepping, and fullscreen when supported by the browser.
+- `Gentle_Flujo_Animado.svg` — SMIL vector animation. Open it directly in a compatible browser; some previewers show only a static SVG or block animation.
+- `fuentes/guion.json` — editable scenes, copy, relationships, and timing.
+- `fuentes/fuentes.json` — source links pinned to the consulted revisions.
 
-## Capítulos
+## Chapters
 
-- 00:00 — Qué ocurre detrás de una petición.
-- 00:24 — Corregir un texto: ODD pequeño y contenido pasivo.
-- 00:48 — Exportación CSV: delegación, documento, Engram, TDD y revisión media.
-- 02:24 — Permisos: riesgo alto, cuatro perspectivas, refutación y corrección acotada.
-- 03:28 — Reanudación: memoria no disponible, TDD apagado y revisión declinada.
-- 04:16 — Integración final del flujo.
+- 00:00 — What happens behind a request.
+- 00:24 — Correcting text: small ODD and passive content.
+- 00:48 — CSV export: delegation, task document, Engram, TDD, and medium review.
+- 02:24 — Permissions: high risk, four perspectives, refutation, and bounded correction.
+- 03:28 — Resume: memory unavailable, TDD disabled, and review declined.
+- 04:16 — Final workflow integration.
 
-## Alcance
+## Scope
 
-Es una simulación didáctica, no una ejecución de Pi ni un benchmark. Casos, comandos, cifras y resultados son ilustrativos. Los diagramas oficiales guían la semántica; esta animación usa su propio guion y composición SVG.
+This is a teaching simulation, not a Pi execution or benchmark. Scenarios, commands, figures, and results are illustrative. Official diagrams guide the semantics; the animation uses its own script and SVG composition.
 
-Se consultaron los diagramas oficiales ODD y RDD de Gentle AI y los de orquestación y revisión de Gentle Shell, además del protocolo ODD, el worker, la integración RDD y la verificación delegada. Referencias exactas en `fuentes/fuentes.json`.
+The source review covered Gentle AI ODD and RDD diagrams; Gentle Shell orchestration and review diagrams; the ODD protocol; the worker contract; RDD integration; and delegated verification. Exact references are stored in `fuentes/fuentes.json`.
 
-Se describe la revisión previa de `gentle-ai` f0782af2803a8192477c18d2186795e9c9daa6c3 y `gentle-shell` 54548321be8c8d60891e89ea13bf2b0ed10e1ac5.
+The animation reflects the earlier review of `gentle-ai` at `f0782af2803a8192477c18d2186795e9c9daa6c3` and `gentle-shell` at `54548321be8c8d60891e89ea13bf2b0ed10e1ac5`.
 
-El modo RDD se consulta: no se presupone que todas las instalaciones tengan el mismo estado. Los ejemplos que lo ejecutan suponen habilitación efectiva y consentimiento aplicable. Se sigue el contrato ODD del worker para TDD observado; documentación antigua conserva contradicciones. SDD se menciona solo como elección explícita y no se integra automáticamente con RDD.
+RDD mode is queried rather than assumed. Examples that execute RDD assume it is effectively enabled and that applicable consent is granted. Observed TDD follows the worker's ODD contract; older documentation retains known contradictions. SDD appears only as an explicit choice and is not automatically integrated with RDD.
 
-## Regeneración
+## Regenerate
 
-Requisitos: Python 3 con Pillow, Node.js con sharp y FFmpeg en PATH.
+Prerequisites: Python 3 with Pillow, Node.js, and FFmpeg on `PATH`. Install the archived renderer's pinned Node dependency without adding it to the Pi package manifest:
 
-Desde esta carpeta:
+```bash
+npm install --no-save sharp@0.35.4
+```
+
+Then run from the repository root:
 
 ```bash
 python3 fuentes/crear_animacion.py
@@ -43,8 +47,8 @@ node fuentes/render_svg.cjs
 python3 fuentes/render_video.py
 ```
 
-El generador crea escenas SVG y el reproductor; sharp rasteriza las escenas; el exportador produce el video con revelado de nodos, transiciones y partículas que recorren relaciones explícitas.
+The generator creates SVG scenes and the player, sharp rasterizes the scenes, and the exporter produces the video with node reveals, transitions, and particles following explicit relationships.
 
-## Verificación
+## Verification
 
-SVG parseado como XML, JavaScript comprobado sintácticamente, texto medido dentro del lienzo y fotogramas representativos inspeccionados visualmente. El reproductor no se probó en navegador: Chromium no estaba disponible y la descarga expiró. El video es la reproducción principal independiente de SMIL o JavaScript.
+The SVG was parsed as XML, JavaScript syntax was checked, text was measured inside the canvas, and representative frames were inspected visually. The player was not browser-tested in the original environment because Chromium was unavailable and the download timed out. The rendered video is the primary playback artifact and does not depend on SMIL or JavaScript at viewing time.

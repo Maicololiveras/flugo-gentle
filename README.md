@@ -8,10 +8,10 @@ See the conversation and the observable handoffs behind Gentle AI, Gentle Shell 
 - **[Install the Live observer](live/README.md)** — connect the same interface to events from your real Pi session with Gentle Shell. User input, delegations, tool progress, questions, results and runtime settlement appear as they happen.
 
 ```sh
-pi install ./live
+pi install git:github.com/Maicololiveras/flugo-gentle@v1.0.0
 ```
 
-Restart or reload your Gentle session, then run `/gentle-live` and open the local URL printed in the terminal. Send tasks and answer questions in the terminal. Stop with `/gentle-live stop`.
+Restart or reload Pi, run `/gentle-live`, and open the complete loopback URL printed in the terminal. Send tasks and answer questions in the terminal. Stop with `/gentle-live stop`. For local development from a clone, use `pi install ./live` instead.
 
 | Example | What it explains |
 |---|---|
@@ -48,8 +48,14 @@ node live/demo.mjs
 
 The `live/` directory is a self-contained Pi extension package with no runtime dependencies beyond Node and Pi. Its `web/` assets also produce the standalone demo.
 
-## Original Spanish material
+## Documentation and archived media
 
-The [original interactive simulation](Simulador_Gentle.html), [5:57 video](Gentle_Sesion_Completa.mp4), [source guide](docs/Guia_Gentle_ODD_TDD_RDD.md) and `simulador/` sources remain available in Spanish. The new English interface and examples are in `live/`; the original video has not been translated.
+All maintained repository documentation is English:
 
-See [integration and coverage](live/README.md) for contracts, installation, data handling and the boundary between parent-visible events and child-internal execution.
+- [Complete installation, security, and operation guide](live/README.md)
+- [ODD, TDD, RDD, and SDD workflow guide](docs/GENTLE_ODD_TDD_RDD_GUIDE.md)
+- [Legacy simulator documentation](docs/LEGACY_SIMULATOR.md)
+- [Legacy animation regeneration](docs/REGENERATION.md)
+- [Integration and acceptance evidence](integrations/gentle-ai/README.md)
+
+The archived interactive simulator and rendered videos retain Spanish on-screen copy; their English documentation labels that limitation explicitly. The maintained Live Observer UI supports English and Spanish locally.

@@ -19,7 +19,7 @@ The independent Pi plugin is implemented and staged successfully; it is **not** 
 | Staged-checkout functional load | **PASS** — under isolated Pi 0.85.1, `/gentle-live` registered, its page returned HTTP 200, and SSE opened in `mode: live`; no model was used |
 | Temporary node-pty harness exit | **FAIL** — it emitted PASS JSON for the functional checks but retained a Windows ConPTY/node-pty handle until timeout |
 | Isolated Pi install/reinstall/remove | **PASS** — unrelated settings preserved; no model session |
-| Synthetic Playwright | **PASS** — 8/8; screenshots/video manually inspected |
+| Synthetic Playwright | **PASS** — all nine current checks; screenshots/video manually inspected |
 | WSL2 Workspace browser acceptance | **PASS** — real Pi startup/PTY, no model prompt, not a real task |
 | Windows Observer credentialed task | Functional task **PASS**; complete harness **FAIL** after settlement because runtime-created fixture paths violated its strict assertion |
 | Windows Workspace | **NOT APPLICABLE** by current design |

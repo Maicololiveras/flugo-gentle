@@ -1,39 +1,38 @@
-# Gentle: una sesión por dentro
+# Legacy Gentle session simulator
 
-Simulación animada de Gentle Shell, Gentle AI y Pi: desde el mensaje en la barra de entrada hasta la respuesta final, con ODD, TDD y RDD. Interfaz inspirada en la referencia de terminal del usuario.
+This archived simulator presents an animated Gentle Shell, Gentle AI, and Pi session—from the first user message to the final response—with ODD, TDD, and RDD examples. The interface itself remains in Spanish; this documentation is English.
 
-![Sesión padre y devolución del worker](Portada_Flujo.png)
+![Parent session and worker return](../Portada_Flujo.png)
 
-- **[Video completo · 5:57](Gentle_Sesion_Completa.mp4)**: cuatro ejemplos con escritura animada, conversación, tarjetas de resultados y traspasos de contexto en SVG. Sin audio; explicaciones en pantalla.
-- **[Simulador interactivo](Simulador_Gentle.html)**: descargar y abrir en el navegador. Funciona sin servidor ni conexión. Reproducción, pausa, velocidad, pasos, tarjetas desplegables y «Decidir yo».
-- **[Guía de contratos y fuentes oficiales](docs/Guia_Gentle_ODD_TDD_RDD.md)**: reglas, excepciones y discrepancias entre documentación y código.
+- **[Complete 5:57 video](../Gentle_Sesion_Completa.mp4):** four examples with animated typing, conversation, result cards, and SVG context handoffs. The video has no audio; its embedded on-screen copy is Spanish.
+- **[Interactive simulator](../Simulador_Gentle.html):** download and open it directly in a browser. It runs offline and provides playback, pause, speed, stepping, expandable cards, and a user-decision control. The simulator UI is Spanish.
+- **[Workflow contracts and source guide](GENTLE_ODD_TDD_RDD_GUIDE.md):** English documentation of the rules, exceptions, and verified discrepancies between documentation and code.
 
-## Los cuatro ejemplos
+## Included examples
 
-| Caso | Qué muestra |
+| Scenario | What it demonstrates |
 |---|---|
-| Cambio pequeño de texto | ODD proporcional, edición acotada y verificación |
-| Exportación CSV | Exploración, documento ODD y espejo Engram, delegación, duda del worker → padre → usuario → worker, TDD y revisión |
-| Autorización de acceso | Riesgo alto, RDD, refutación, corrección acotada, validación dirigida y ACK |
-| Retomar una tarea | Memoria no disponible, recuperación desde documento, relanzamiento y verificación alternativa |
+| Small text correction | Proportional ODD, a bounded edit, and verification |
+| CSV export | Exploration, an ODD document and Engram mirror, delegation, a worker → parent → user → worker decision, TDD, and review |
+| Access authorization | High risk, RDD, refutation, bounded correction, directed validation, and ACK |
+| Resume a task | Memory unavailable, document recovery, relaunch, and alternate verification |
 
-El video recorre las respuestas predeterminadas. En el HTML se puede elegir el alcance de la exportación o declinar la revisión. Los mensajes y salidas son ilustrativos: no hay un modelo, memoria ni herramientas conectadas. Se muestran acciones observables y contratos; no razonamiento privado. Los diálogos de consentimiento están simplificados para enseñar el flujo.
+The video follows the default responses. The HTML lets the viewer choose the export scope or decline review. All messages and outputs are illustrative: no model, memory service, or tool is connected. The simulator presents observable actions and contracts, never private reasoning. Consent dialogs are simplified for teaching.
 
-## Código editable
+## Editable source
 
-- `simulador/create_scenarios.py`: guion y alternativas; genera `scenarios.json`.
-- `simulador/engine.js`: estados, decisiones, tiempo e historial separado padre/hijo.
-- `simulador/app.js` y `style.css`: terminal y conexiones SVG animadas.
-- `simulador/build.py`: genera el HTML autónomo.
-- `simulador/render_session.py`: genera escenas SVG, rasteriza y exporta el MP4 con escritura y partículas animadas.
-- `simulador/timeline.json`: tiempos de los 69 pasos del video.
+- `simulador/create_scenarios.py` — script and alternatives; generates `scenarios.json`.
+- `simulador/engine.js` — state, decisions, time, and separate parent/child history.
+- `simulador/app.js` and `simulador/style.css` — terminal UI and animated SVG relationships.
+- `simulador/build.py` — generates the standalone HTML.
+- `simulador/render_session.py` — generates SVG scenes, rasterizes them, and exports the MP4 with typing and animated particles.
+- `simulador/timeline.json` — timing for the 69 video steps.
 
-## Regenerar
+## Regenerate the simulator
 
-Requiere Python 3, Node.js y FFmpeg disponibles en PATH. El render de video utiliza DejaVu Sans Mono en Linux (`/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf`).
+Prerequisites: Python 3, Node.js, and FFmpeg on `PATH`. Video rendering uses DejaVu Sans Mono on Linux (`/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf`).
 
 ```bash
-npm install
 python -m pip install -r requirements.txt
 python simulador/create_scenarios.py
 python simulador/build.py
@@ -41,12 +40,12 @@ node simulador/engine.test.cjs
 python simulador/render_session.py
 ```
 
-Para exportar solo los diagramas SVG de cada paso: `python simulador/render_session.py --svg-only`. Para incluir PNG: `--frames-only`. Se guardan en `session-frames/`, excluido de Git por ser regenerable.
+Use `python simulador/render_session.py --svg-only` to export only the SVG diagrams for each step. Use `--frames-only` to include PNG frames. Generated files go to `session-frames/`, which is excluded from Git because it is reproducible.
 
-Validación realizada: pruebas del motor para decisiones bloqueantes, alternativas, separación padre/hijo, espera de `agent_settled` y cierre de los cuatro casos; inspección visual de escenas SVG rasterizadas y comprobación técnica del MP4. La interfaz HTML no se probó en un navegador real en este entorno.
+Validation covered blocking decisions, alternatives, parent/child separation, waiting for `agent_settled`, and closure of all four scenarios. Representative rasterized SVG scenes and the MP4 were inspected technically. The archived Spanish HTML was not exercised in a real browser in the original validation environment.
 
-## Referencias
+## References and limits
 
-Los enlaces dentro del simulador y la guía fijan las revisiones oficiales consultadas: Gentle AI `f0782af` y Gentle Shell `5454832`. Los diagramas originales ODD, RDD y orquestación guiaron los contratos del guion. No se presentan como una grabación literal de la aplicación.
+The simulator and source guide pin the consulted Gentle AI revision (`f0782af`) and Gentle Shell revision (`5454832`). The official ODD, RDD, orchestration, and review diagrams informed the script contracts; this is not presented as a literal application recording.
 
-`Gentle_Flujo_Animado.html`, `Gentle_Flujo_Animado.svg` y `fuentes/` conservan la explicación anterior por diagramas como material complementario. La entrega principal es la simulación de sesión de arriba.
+`Gentle_Flujo_Animado.html`, `Gentle_Flujo_Animado.svg`, and `fuentes/` retain an earlier diagram-first explanation as complementary material. See [regeneration notes](REGENERATION.md). The maintained deliverable is the English Live Observer documented in the repository root README.

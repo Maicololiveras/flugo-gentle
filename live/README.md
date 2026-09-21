@@ -7,14 +7,14 @@ An EN/ES event visualizer installed alongside Gentle Shell and Pi. Two real-work
 
 The four scripted demos remain available for teaching without running a model or tools.
 
-> **Distribution status:** Gentle Live is currently a local package from this cloned repository. It is not published as an npm or Git package. The upstream Gentle AI community-plugin request is [Gentleman-Programming/gentle-ai#4823](https://github.com/Gentleman-Programming/gentle-ai/issues/4823); no Gentle AI pull request may be opened until that request has `status:approved`.
+> **Distribution:** Gentle Live is published as a versioned Pi Git package from this repository. It remains independently owned and is not part of the official Gentle AI release. The upstream Gentle AI community-plugin request is tracked separately in [Gentleman-Programming/gentle-ai#4823](https://github.com/Gentleman-Programming/gentle-ai/issues/4823).
 
 ## Quick path
 
-From the cloned `flugo-gentle` repository, install the local package, reload Pi, start the observer, and open the exact URL Pi prints:
+Install the pinned public release, reload Pi, start the observer, and open the exact URL Pi prints:
 
 ```sh
-pi install ./live
+pi install git:github.com/Maicololiveras/flugo-gentle@v1.0.0
 pi list
 ```
 
@@ -43,11 +43,20 @@ You need:
 
 Gentle Live does not install a model or change model credentials. Pi packages and extensions execute code with your user account's permissions. Review this package's source before installing or launching it, especially `extensions/observer.ts`, `lib/`, and the package metadata.
 
-### 2. Choose persistent local installation or a temporary launch
+### 2. Choose a versioned release, local development install, or temporary launch
 
-#### Option A — persistent local installation
+#### Option A — versioned Git release (recommended)
 
-Use the path to this repository's `live` directory. Relative and absolute paths are both supported.
+```sh
+pi install git:github.com/Maicololiveras/flugo-gentle@v1.0.0
+pi list
+```
+
+The tag pins the exact reviewed source. To move to a later published tag, install that exact new ref; `pi update --extensions` does not move pinned Git refs automatically.
+
+#### Option B — persistent local development install
+
+Use the path to a cloned repository's `live` directory. Relative and absolute paths are supported.
 
 POSIX shell (Linux/macOS, or WSL when Pi runs inside WSL):
 
@@ -69,7 +78,7 @@ pi list
 
 Confirm the local package appears in `pi list`. Restart Pi so it discovers the extension, or run `/reload` in an existing Pi session.
 
-#### Option B — temporary launch without installation
+#### Option C — temporary launch without installation
 
 Start Pi from the project you want to work in and load the observer extension for that process only:
 
@@ -142,9 +151,16 @@ Then:
 
 Workspace browser acceptance passed under Ubuntu WSL2 x86_64 with Pi 0.85.1, including resize, reconnect, second-tab exclusion and owned-process Stop. This is not native Linux hardware/distro acceptance. Native Linux amd64/arm64 and macOS amd64/arm64 remain **NOT RUN**; macOS PTY behavior, native dialogs and Homebrew packaging are unverified. Native Windows Workspace is **NOT APPLICABLE** by current design, while Windows Observer is validated. Read `integrations/gentle-ai/TWO_MODES.md` (copied to the plugin root when staged) for lifecycle and coverage details.
 
-### 6. Remove a persistent local installation
+### 6. Remove an installation
 
-Remove using the **exact same local package source** used for installation, then verify the result:
+For the versioned Git package:
+
+```sh
+pi remove git:github.com/Maicololiveras/flugo-gentle@v1.0.0
+pi list
+```
+
+For a local development installation, use the **exact same local package source** used during installation:
 
 POSIX example:
 
@@ -218,8 +234,8 @@ Tool text may contain project data: the observer shows that text locally. Struct
 
 Contract references: [Pi extension events](https://github.com/earendil-works/pi/blob/main/packages/coding-agent/docs/extensions.md), [Gentle Shell delegation implementation at 5454832](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/extensions/gentle-agents.ts).
 
-Validation now includes 10 passing Node tests, a passing 8/8 synthetic Playwright suite, real WSL2 Workspace startup/browser checks without a model prompt, and one credentialed Windows Observer task. The real task showed actual read/edit/read activity, parent response and settlement, and made the exact intended README fix. Its complete harness is still **FAIL** because Gentle/Pi and Pi Lens created `.atl/`, `.gitignore`, and `.pi-lens-probe-home` in the disposable fixture; sanitized evidence was retained, but no raw recording was kept.
+Validation now includes 11 passing Node tests, a passing nine-check synthetic Playwright suite, real WSL2 Workspace startup/browser checks without a model prompt, and one credentialed Windows Observer task. The real task showed actual read/edit/read activity, parent response and settlement, and made the exact intended README fix. Its complete harness is still **FAIL** because Gentle/Pi and Pi Lens created `.atl/`, `.gitignore`, and `.pi-lens-probe-home` in the disposable fixture; sanitized evidence was retained, but no raw recording was kept.
 
 ## Visual acceptance
 
-From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a **synthetic** feed and passed 8/8 on Windows; they are not a substitute for the separately labeled real-task evidence. See the repository `VISUAL_QA_REPORT.md` and integration handoff for artifact classification and remaining cases.
+From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a **synthetic** feed and passed all nine current checks on Windows; they are not a substitute for the separately labeled real-task evidence. See the repository `VISUAL_QA_REPORT.md` and integration handoff for artifact classification and remaining cases.

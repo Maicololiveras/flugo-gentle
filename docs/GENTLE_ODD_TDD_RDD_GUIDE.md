@@ -1,290 +1,294 @@
-# Cómo funcionan los flujos de Gentle AI y Gentle Shell
+# How Gentle AI and Gentle Shell workflows fit together
 
-Revisión: 20 de septiembre de 2026. Alcance: las ramas `main` descargadas, no una instalación del usuario ni una certificación de la versión estable.
+This guide explains when ODD, TDD, RDD, and SDD apply, what evidence each workflow requires, and where the reviewed sources disagree.
 
-- gentle-ai: `f0782af2803a8192477c18d2186795e9c9daa6c3`.
-- gentle-shell: `54548321be8c8d60891e89ea13bf2b0ed10e1ac5`.
+**Reviewed:** September 20, 2026
 
-Se contrastaron documentación, instrucciones del orquestador y workers, implementación del clasificador y modo RDD, y pruebas existentes. No se ejecutaron las pruebas Go: el entorno no tiene Go disponible. No se ejecutó una sesión real de Pi. Por tanto, se verifica qué especifican e implementan las fuentes revisadas; no se demuestra cumplimiento autónomo de todos los pasos.
+**Scope:** downloaded `main` branches—not a user's installation and not certification of a stable release.
 
-## 1. Primero: qué es cada pieza
+- gentle-ai: `f0782af2803a8192477c18d2186795e9c9daa6c3`
+- gentle-shell: `54548321be8c8d60891e89ea13bf2b0ed10e1ac5`
 
-| Pieza | Responsabilidad |
+The review compared documentation, orchestrator and worker instructions, risk-classifier and RDD implementations, and existing tests. Go tests and a real Pi session were not run in the original environment. The conclusions therefore describe what the reviewed sources specify and implement; they do not prove autonomous compliance with every step.
+
+## 1. Responsibilities at a glance
+
+| Component | Responsibility |
 |---|---|
-| Pi | Runtime del agente: conversación, modelos, herramientas y ejecución. |
-| gentle-ai | Configura agentes y proyecta skills e instrucciones. Su binario Go gobierna las transiciones nativas de SDD y RDD. |
-| gentle-shell | Entorno de trabajo para Pi: orquestador, workers, vistas de cambios, perfiles y transporte de revisión. |
-| gentle-pi | Nombre que conserva el paquete npm durante la transición a gentle-shell. No son dos motores metodológicos que debas encadenar. |
-| Engram | Memoria persistente separada. En ODD conserva una copia completa del documento de la funcionalidad. |
+| Pi | Agent runtime: conversation, models, tools, and execution. |
+| gentle-ai | Configures agents and projects skills and instructions. Its Go binary owns native SDD and RDD transitions. |
+| gentle-shell | Pi work environment: orchestrator, workers, change views, profiles, and review transport. |
+| gentle-pi | npm package name retained during the transition to gentle-shell. It is not a second methodology engine that must be chained. |
+| Engram | Separate persistent memory. In ODD it retains a complete mirror of the feature task document when available. |
 
-ODD organiza el trabajo diario; TDD determina cómo se construye y demuestra cada comportamiento cuando está activado; RDD revisa un candidato concreto con evidencia vinculada a él. SDD añade artefactos y fases formales solo cuando el usuario lo elige. TDD se puede usar tanto en ODD como en SDD. SDD no inicia ni consume RDD automáticamente.
+ODD organizes day-to-day work. TDD determines how behavior is built and demonstrated when enabled. RDD reviews one exact candidate against evidence bound to that candidate. SDD adds formal phase artifacts only when explicitly selected. TDD can operate inside ODD or SDD. SDD does not automatically start or consume RDD.
 
-Fuentes: [README de Gentle Shell](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/README.md), [uso de Gentle AI](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md), [contrato nativo RDD](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/review-integration.md).
+Sources: [Gentle Shell README](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/README.md), [Gentle AI usage](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md), and [native RDD contract](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/review-integration.md).
 
-## 2. Cómo deciden el recorrido según la tarea
+## 2. Choose the workflow from the request
 
 ```mermaid
 flowchart TD
-    A[Petición] --> B{¿Autoriza modificar?}
-    B -->|No| C[Explorar o explicar sin editar]
-    B -->|Sí| D[Explorar alcance y código]
-    D --> E{¿SDD elegido explícitamente?}
-    E -->|Sí| F[Propuesta, spec, diseño y tareas]
-    E -->|No| G{¿Trabajo sustancial?}
-    G -->|No| H[ODD pequeño sin documento persistente]
-    G -->|Sí| I[ODD con un documento y espejo en memoria]
-    H --> J[Elegir ejecución por acción]
+    A[Request] --> B{Does it authorize modification?}
+    B -->|No| C[Explore or explain without editing]
+    B -->|Yes| D[Explore scope and code]
+    D --> E{Was SDD explicitly selected?}
+    E -->|Yes| F[Proposal, spec, design, and tasks]
+    E -->|No| G{Is the work substantial?}
+    G -->|No| H[Small ODD without a durable task document]
+    G -->|Yes| I[ODD with task document and memory mirror]
+    H --> J[Choose execution per action]
     I --> J
-    J --> K{¿Requiere contexto o edición amplia?}
-    K -->|No| L[Resolver directamente]
-    K -->|Sí| M[Delegar exploración o un escritor]
+    J --> K{Does it require broad context or editing?}
+    K -->|No| L[Resolve directly]
+    K -->|Yes| M[Delegate exploration or one writer]
 ```
 
-Hay tres escalas independientes:
+Three independent decisions matter:
 
-| Decisión | Señal | Consecuencia |
+| Decision | Signal | Consequence |
 |---|---|---|
-| Persistir progreso | Dos o más pasos significativos, o progreso que merece poder recuperarse | Crear `odd/tasks/<feature-name>.md` antes de escribir código. |
-| Delegar | Leer 4+ archivos para entender; investigación amplia; lectura que prepara escritura; modificar 2+ archivos no triviales | Usar un worker acotado; mantener un escritor responsable. |
-| Revisar con más profundidad | Evidencia de riesgo en el candidato congelado | RDD selecciona 0, 1 o 4 perspectivas. |
+| Persist progress | Two or more meaningful steps, or progress worth recovering | Create `odd/tasks/<feature-name>.md` before source edits. |
+| Delegate | Understand 4+ files; perform broad research; read in preparation for writing; modify 2+ non-trivial files | Use a bounded worker and retain one responsible writer. |
+| Review more deeply | Risk evidence in the frozen candidate | RDD selects 0, 1, or 4 review perspectives. |
 
-Leer 1–3 archivos para decidir o verificar puede quedarse en el padre. Una edición mecánica de un archivo ya comprendido también. Las cifras describen contexto por acción, no un puntaje universal de complejidad.
+A parent can usually keep a read-only check of 1–3 files or one understood mechanical edit inline. These thresholds describe context per action, not a universal complexity score.
 
-Una funcionalidad grande puede seguir enteramente en ODD. Una edición de cinco líneas puede necesitar revisión profunda si altera autorización. La incertidumbre se resuelve con investigación o una pregunta concreta; no obliga a adoptar SDD.
+A large feature can remain entirely in ODD. A five-line authorization change can require deep review. Resolve uncertainty with research or one concrete question; uncertainty alone does not require SDD.
 
-Fuente: [reglas de enrutamiento](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/trigger-rules.md), [delegación de Pi](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/orchestrator-delegation.md).
+Sources: [routing rules](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/trigger-rules.md) and [Pi delegation](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/orchestrator-delegation.md).
 
-## 3. ODD: fase por fase
+## 3. ODD phase by phase
 
-ODD significa **Organic Driven Development**. Es una guía de trabajo adaptable; sus pasos no equivalen a una nueva máquina de estados nativa obligatoria.
+ODD means **Organic Driven Development**. It is an adaptable working discipline, not another mandatory native state machine.
 
-| Paso | Qué hace | Qué debe existir para avanzar |
+| Phase | Action | Evidence required to continue |
 |---|---|---|
-| Autorizar | Distingue explicación, investigación y modificación | Alcance permitido; investigar no autoriza editar. |
-| Explorar | Inspecciona código, convenciones, restricciones y pruebas pertinentes | Entendimiento suficiente del próximo cambio. |
-| Resolver incertidumbre | Investiga un punto concreto o pregunta por una decisión real | Decisión o supuesto explícito que permite continuar. |
-| Clasificar y registrar | Determina si conviene recuperar progreso | En trabajo sustancial, documento ODD y espejo en Engram antes del primer cambio de fuente. |
-| Implementar | Ejecuta la siguiente unidad autorizada; delega cuando aporta contexto | Modo TDD, procedencia de esa elección y comando exacto de prueba. |
-| Comprobar | Ejecuta verificaciones proporcionales | Resultados observados; no basta la afirmación del worker. |
-| Registrar y cerrar | Actualiza tareas, evidencia, commit y siguiente paso | Pendientes y fallos declarados; revisión/entrega según política y autorización. |
+| Authorize | Distinguish explanation, investigation, and modification | Allowed scope; permission to investigate is not permission to edit. |
+| Explore | Inspect relevant code, conventions, constraints, and tests | Enough understanding for the next change. |
+| Resolve uncertainty | Research one named point or ask for a real decision | A decision or explicit assumption that permits progress. |
+| Classify and track | Decide whether progress must be recoverable | For substantial work, an ODD task document and Engram mirror before the first source edit. |
+| Implement | Execute the next authorized work unit; delegate when it saves context | TDD mode, source of that setting, and exact runner. |
+| Verify | Run proportional checks | Observed results, not only a worker's claim. |
+| Record and close | Update tasks, evidence, commit boundary, and next step | Pending and failed checks disclosed; review and delivery follow policy and authorization. |
 
-El documento reúne objetivo, problema, motivo, alcance, restricciones, tareas con identificadores estables y criterios de aceptación, evidencia y siguiente paso. No hace falta fabricar proposal/spec/design para cada cambio.
+The task document records goal, problem, motivation, scope, constraints, stable task identifiers, acceptance criteria, evidence, and next step. ODD does not manufacture proposal/spec/design artifacts for every change.
 
 ```mermaid
 flowchart TD
-    A[Exploración terminada] --> B{¿Trabajo sustancial?}
-    B -->|Sí| C[Crear documento ODD y espejo Engram]
-    B -->|No| D[Continuar sin artefacto persistente]
-    C --> E[Resolver TDD y ejecutar una tarea]
+    A[Exploration complete] --> B{Substantial work?}
+    B -->|Yes| C[Create ODD document and Engram mirror]
+    B -->|No| D[Continue without durable artifact]
+    C --> E[Resolve TDD and execute one task]
     D --> E
-    E --> F[Comprobar resultados]
-    F --> G{¿Cumple el criterio?}
+    E --> F[Verify results]
+    F --> G{Criterion satisfied?}
     G -->|No| E
-    G -->|Sí| H[Registrar evidencia y unidad de trabajo]
-    H --> I{¿Queda trabajo autorizado?}
-    I -->|Sí| E
-    I -->|No| J[Revisión aplicable y reporte final]
-    R[Reanudar sesión] --> S[Leer documento y memoria completos]
-    S --> T[Conciliar con código y evidencia]
+    G -->|Yes| H[Record evidence and work unit]
+    H --> I{Authorized work remains?}
+    I -->|Yes| E
+    I -->|No| J[Applicable review and final report]
+    R[Resume session] --> S[Read complete task document and memory]
+    S --> T[Reconcile them with code and evidence]
     T --> E
 ```
 
-Si cambian requisitos aceptados, actualiza intención y tareas afectadas, conserva trabajo válido y explica qué reabre. Si Engram falla, conserva progreso local y declara pendiente el espejo. Las dos escrituras no son atómicas: sus instrucciones piden comprobar ambas. Un hallazgo no autoriza ampliar automáticamente el producto.
+When accepted requirements change, update intent and affected tasks, preserve valid work, and explain what reopens. If Engram fails, keep local progress and report the mirror as pending. The two writes are not atomic. A finding does not authorize expanding the product automatically.
 
-**Novedad de entrega:** las instrucciones actuales organizan tareas en commits de unidades coherentes, con pruebas y documentación del comportamiento, y mensajes Conventional Commit. Esto sigue sujeto a la política del repositorio y a la autorización de entrega; un resultado RDD no la reemplaza.
+Delivery instructions group behavior, tests, and documentation into coherent work-unit commits with Conventional Commit messages. Repository policy and human delivery authorization still govern commit, push, PR, and release; RDD does not replace them.
 
-Fuente: [protocolo ODD completo](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md).
+Source: [complete ODD protocol](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md).
 
-## 4. TDD: qué pasa antes de escribir implementación
+## 4. TDD before implementation
 
-TDD significa **Test-Driven Development**. La presencia de una carpeta de tests no lo activa según las instrucciones ODD actuales. El padre debe resolver modo, fuente y runner antes de delegar, y volver a resolverlos al reanudar.
+TDD means **Test-Driven Development**. Under the reviewed ODD instructions, the mere presence of tests does not enable TDD. The parent resolves mode, source, and runner before delegation and resolves them again when work resumes.
 
 ```mermaid
 flowchart TD
-    A{¿TDD configurado?} -->|No| B[Implementar y comprobar funcionamiento]
-    A -->|Desconocido| C[Resolver modo o runner faltante]
+    A{Is TDD configured?} -->|No| B[Implement and verify behavior]
+    A -->|Unknown| C[Resolve missing mode or runner]
     C --> A
-    A -->|Sí| D[Revisar estado previo y comportamiento esperado]
-    D --> E[RED: test nuevo falla por la causa esperada]
-    E --> F[GREEN: implementación mínima pasa]
-    F --> G[TRIANGULATE: probar otros casos]
-    G --> H{¿Los casos están cubiertos?}
+    A -->|Yes| D[Inspect baseline and expected behavior]
+    D --> E[RED: new test fails for the expected cause]
+    E --> F[GREEN: minimum implementation passes]
+    F --> G[TRIANGULATE: test alternate cases]
+    G --> H{Are cases covered?}
     H -->|No| E
-    H -->|Sí| I[REFACTOR y ejecutar pruebas]
-    I --> J{¿Siguen pasando?}
-    J -->|No| K[Revertir el último refactor]
+    H -->|Yes| I[REFACTOR and rerun tests]
+    I --> J{Still passing?}
+    J -->|No| K[Revert the latest refactor]
     K --> I
-    J -->|Sí| L[Registrar evidencia]
+    J -->|Yes| L[Record evidence]
 ```
 
-| Etapa | Evidencia útil | Condición de avance |
+| Stage | Useful evidence | Exit condition |
 |---|---|---|
-| Estado previo | Pruebas existentes relevantes y fallos ya conocidos | Distinguir regresiones nuevas de fallos previos. |
-| RED | Test del comportamiento faltante y fallo observado | Falla por la causa esperada, antes de implementar. |
-| GREEN | Comando exacto y resultado correcto | La implementación real satisface el caso. |
-| TRIANGULATE | Casos alternativos, negativos o límites | Evitar soluciones que solo satisfacen un ejemplo. |
-| REFACTOR | Mismas pruebas después de mejorar código | Mantener comportamiento. |
+| Baseline | Relevant existing tests and known failures | New regressions are distinguishable from pre-existing failures. |
+| RED | Test for missing behavior and observed failure | It fails for the expected cause before implementation. |
+| GREEN | Exact command and passing result | Real implementation satisfies the case. |
+| TRIANGULATE | Alternate, negative, or boundary cases | The solution does not satisfy only one example. |
+| REFACTOR | Same tests after design improvement | Behavior remains green. |
 
-Ejemplo didáctico: para un cálculo de descuento, primero una prueba espera 90 para precio 100 y descuento 10 %. La implementación mínima la satisface. Otro caso usa 200 y 15 %, esperando 170, y un caso valida entradas inválidas. Después se mejora el diseño conservando pruebas verdes. Los valores son ilustrativos, no una regla de Gentle.
+Teaching example: a discount calculation first expects 90 from a price of 100 and a 10% discount. The minimum implementation passes. A second case expects 170 from 200 and 15%, and another validates invalid input. Design improves only after the behavior remains green. These values illustrate the workflow; they are not a Gentle rule.
 
-En cambios sin comportamiento ejecutable, como texto documental, el worker permite justificar una excepción precisa, conservando las comprobaciones aplicables. TDD apagado significa pruebas funcionales ordinarias; no significa ausencia de controles.
+For changes without executable behavior, such as passive documentation copy, the worker permits a precise exception while retaining applicable checks. TDD disabled means ordinary functional verification, not no verification.
 
-**Contradicciones verificadas:** el worker ODD exige RED observado; `assets/support/strict-tdd.md` conserva una cláusula que permite inferir el fallo si la función aún no existe, sin ejecutarlo. Además, `skills/gentle-ai/SKILL.md` todavía vincula TDD a que existan tests, mientras el worker y el orquestador lo niegan. No hay base para afirmar que todas las rutas aplican exactamente el mismo protocolo. El diagrama refleja el contrato ODD explícito del worker.
+**Verified discrepancy:** the ODD worker requires an observed RED failure, while `assets/support/strict-tdd.md` retains a clause that permits inferring failure when the function does not yet exist. `skills/gentle-ai/SKILL.md` also ties TDD to existing tests while the worker and orchestrator require configuration. The sources do not support claiming that every path applies one identical protocol.
 
-Fuentes: [worker ODD](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/agents/gentle-ai-worker.md), [módulo estricto](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/support/strict-tdd.md), [skill general contradictoria](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/skills/gentle-ai/SKILL.md).
+Sources: [ODD worker](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/agents/gentle-ai-worker.md), [strict module](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/assets/support/strict-tdd.md), and [conflicting general skill](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/skills/gentle-ai/SKILL.md).
 
-## 5. RDD: profundidad proporcional sobre una versión exacta
+## 5. RDD: proportional depth over one exact candidate
 
-RDD significa **Receipt-Driven Development**. Congela el cambio antes de revisarlo para que los revisores inspeccionen la misma versión. El código Go determina riesgo, perspectivas y transiciones; el host de Pi ejecuta los roles y devuelve resultados vinculados al candidato. El modelo no debe inventar el siguiente paso ni reconstruir sus identificadores.
+RDD means **Receipt-Driven Development**. It freezes a change so every reviewer inspects the same version. Go code determines risk, perspectives, and transitions; the Pi host executes roles and returns candidate-bound results. The model must not invent the next transition or reconstruct opaque identifiers.
 
-### Clasificación actual
+### Risk classification
 
-| Riesgo publicado | Evidencia | Perspectivas cuando se inicia revisión |
+| Published risk | Evidence | Perspectives when review starts |
 |---|---|---|
-| `passive` | Todos los cambios demostrablemente pasivos por contenido congelado y modos | 0: lectura estructural. |
-| `medium` | Cambio activo sin señales que lo eleven | 1 perspectiva seleccionada. |
-| `high` | Señal sensible o ruta crítica reconocida | 4: Risk, Resilience, Readability y Reliability. |
+| `passive` | Every frozen change is demonstrably passive by content and mode | 0: structural readback. |
+| `medium` | Active change without a signal that elevates it | 1 selected perspective. |
+| `high` | Sensitive signal or recognized critical path | 4: Risk, Resilience, Readability, and Reliability. |
 
-Risk trata riesgos; Resilience, comportamiento ante fallos; Readability, claridad y mantenibilidad; Reliability, corrección y consistencia. El alcance concreto lo dan los prompts de cada rol.
+Risk covers security and privilege. Resilience covers failure behavior. Readability covers clarity and maintainability. Reliability covers correctness and consistency. Each role prompt defines its exact scope.
 
-Las señales incluyen autorización, seguridad, pagos, exposición/pérdida de datos, permisos y fronteras de procesos. El clasificador combina rutas, contenido y modos: no basta decir que un archivo es `.md` para declararlo pasivo. Cambiar un contrato operativo de agentes puede afectar ejecución.
+Signals include authorization, security, payments, data exposure or loss, permissions, and process boundaries. The classifier combines paths, content, and modes. A `.md` extension alone does not prove passivity; agent-operation contracts can affect execution.
 
-### Cuándo se solicita revisión en el flujo ODD por unidades
+### When review becomes due in work-unit ODD
 
-Tras un commit de unidad de trabajo, el orquestador consulta `review assess` sobre el tramo desde la última frontera revisada. Lee `review_due` del resultado nativo:
+After a work-unit commit, the orchestrator can assess the range since the last reviewed boundary and read native `review_due`:
 
-| Caso | Resultado |
+| Case | Result |
 |---|---|
-| Candidato exacto ya consumido | `already_reviewed`: no repetir automáticamente. |
-| Alto riesgo | `high_risk`: corresponde revisión. |
-| Medio con 400 o más líneas cambiadas en el tramo | `slice_budget_reached`: corresponde revisión. |
-| Medio por debajo | `under_budget`: acumular en el tramo pendiente. |
-| Pasivo | `passive`: controles estructurales; puede avanzar la frontera. |
+| Exact candidate already consumed | `already_reviewed`: do not repeat automatically. |
+| High risk | `high_risk`: review is due. |
+| Medium with at least 400 changed lines in the range | `slice_budget_reached`: review is due. |
+| Medium below the range budget | `under_budget`: retain it in the pending range. |
+| Passive | `passive`: structural checks can advance the boundary. |
 
-Esto no permite omitir controles de entrega existentes. Un cambio medio bajo presupuesto queda pendiente; no debe declararse revisado.
+This never bypasses delivery controls. A medium change under budget remains pending; it is not automatically reviewed.
 
-**Las 400 líneas tienen tres usos diferentes:** tamaño orientativo de tareas, presupuesto del tramo para revisión media, y estrategia de división de PR. No son una regla para elevar riesgo ni un permiso para partir comportamientos artificialmente. La entrega contempla `ask-on-risk`, `auto-chain`, `single-pr` y `exception-ok`; las cadenas pueden ser `stacked-to-main` o `feature-branch-chain`.
+The number 400 has three different uses: task-size guidance, a medium-risk review-range budget, and PR slicing strategy. It is not a risk elevation rule or permission to split behavior artificially. Delivery strategies include `ask-on-risk`, `auto-chain`, `single-pr`, and `exception-ok`; chains can be stacked to main or use a feature-branch tracker.
 
-Fuentes: [clasificador y selección 0/1/4](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/reviewtransaction/risk.go), [cálculo de review_due](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/cli/review_assess.go), [uso ODD](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md).
+Sources: [0/1/4 classifier](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/reviewtransaction/risk.go), [`review_due` calculation](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/cli/review_assess.go), and [ODD usage](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/usage.md).
 
-### Transacción de revisión
+### Review transaction
 
 ```mermaid
 flowchart TD
-    A[Evaluar candidato y modo efectivo] --> B{¿Corresponde revisión?}
-    B -->|No| C[Registrar motivo y controles aplicables]
-    B -->|Sí| D[STATUS devuelve operación exacta]
-    D --> E[START congela candidato y selecciona perspectivas]
-    E --> F[Resolver consentimiento si se presenta]
-    F -->|Concedido o no requerido| G[Recoger evidencia sobre árboles congelados]
-    F -->|Declinado| C
-    G --> H[Contrastar hallazgos y refutación]
-    H --> I{¿Corrección acotada procedente?}
-    I -->|Sí| J[Un lote de corrección y validación dirigida]
-    I -->|No| K[Resultado nativo]
+    A[Assess candidate and effective mode] --> B{Is review due?}
+    B -->|No| C[Record reason and applicable checks]
+    B -->|Yes| D[STATUS returns exact operation]
+    D --> E[START freezes candidate and selects perspectives]
+    E --> F[Resolve consent when offered]
+    F -->|Granted or not required| G[Collect evidence from frozen trees]
+    F -->|Declined| C
+    G --> H[Challenge findings and refutation]
+    H --> I{Is bounded correction appropriate?}
+    I -->|Yes| J[One correction batch and directed validation]
+    I -->|No| K[Native result]
     J --> K
-    K --> L{¿Aprobado?}
-    L -->|Sí| M[ACK exacto consume autoridad]
-    L -->|No| N[Reportar bloqueo o escalación]
+    K --> L{Approved?}
+    L -->|Yes| M[Exact ACK consumes authority]
+    L -->|No| N[Report blocker or escalation]
 ```
 
-Fases y límites:
+Transaction boundaries:
 
-1. **Evaluación y STATUS:** no equivale a aprobación. Devuelve la siguiente operación admitida.
-2. **START:** vincula repositorio, candidato, revisión y linaje; selecciona perspectivas.
-3. **Consentimiento:** el host respeta las opciones nativas. Rechazar este candidato no es apagar RDD globalmente.
-4. **Revisores:** inspeccionan árboles inmutables, no el worktree cambiante. Devuelven hallazgos y evidencia estructurada.
-5. **Refutación:** contrasta las afirmaciones para no convertir sospechas en defectos aceptados automáticamente.
-6. **Corrección:** como máximo un lote acotado dentro de esa transacción; no una sucesión interminable de arreglar y revisar todo.
-7. **Validación dirigida:** comprueba criterios originales y posibles regresiones de la corrección. No poder inspeccionar no equivale a aprobar ni a demostrar un defecto.
-8. **Cierre:** si aprueba, la operación ACK nativa consume esa autoridad. No queda un recibo reutilizable para autorizar otros cambios. Bloqueos o escalaciones siguen sus propias continuaciones.
+1. **Assessment and STATUS** are not approval; they return the permitted next operation.
+2. **START** binds repository, candidate, review, and lineage and selects perspectives.
+3. **Consent** is provider-owned. Declining one candidate does not disable RDD globally.
+4. **Reviewers** inspect immutable trees and return structured evidence.
+5. **Refutation** challenges allegations so suspicion is not accepted as fact.
+6. **Correction** permits at most one bounded batch in the transaction—not an endless fix/review loop.
+7. **Directed validation** checks original criteria and correction regressions. Inability to inspect is neither approval nor proof of a defect.
+8. **Closure** consumes approved authority through exact ACK. It cannot authorize another candidate.
 
-El resultado es informativo para entrega: no hace commit, push, PR o release ni autoriza esas operaciones. Que una revisión apruebe tampoco demuestra ausencia universal de defectos.
+The outcome is informational for delivery. It does not commit, push, merge, or release, and approval does not prove universal absence of defects.
 
-Fuente: [contrato de integración](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/review-integration.md).
+Source: [review integration contract](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/review-integration.md).
 
-### Qué ocurre cuando RDD no se ejecuta
+### When RDD does not run
 
-Gentle Shell documenta una alternativa para trabajo delegado:
+Gentle Shell documents an alternate path for delegated work:
 
-| Condición | Verificación |
+| Condition | Verification |
 |---|---|
-| RDD cerrado para ese candidato | Pruebas del escritor + revisión nativa como comprobación independiente. |
-| RDD apagado, desconocido, declinado o no disponible; cambio pasivo | Lectura estructural del padre. |
-| Mismo caso; riesgo medio | Evidencia del escritor; verificador adicional si su perfil es mini o de bajo esfuerzo. |
-| Mismo caso; riesgo alto | Escritor + verificador independiente. |
-| Evaluación falla o riesgo desconocido | Tratar como alto para esta decisión de verificación. |
+| RDD closed for that candidate | Writer checks plus native review as independent evidence. |
+| RDD off, unknown, declined, or unavailable; passive change | Parent structural readback. |
+| Same condition; medium risk | Writer evidence; an additional verifier when the writer profile is mini or low effort. |
+| Same condition; high risk | Writer plus independent verifier. |
+| Assessment fails or risk is unknown | Treat as high for this verification decision. |
 
-El padre conserva una comprobación puntual. La excepción pasiva usa inspección estructural sin inventar un comando de tests. Rechazar RDD no baja la exigencia por debajo de la ruta RDD apagado.
+The parent retains a focused check. Passive exceptions use structural inspection rather than invented test commands. Declining RDD never lowers the standard below the RDD-off route.
 
-Fuente: [verificación delegada](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/docs/delegated-verification.md).
+Source: [delegated verification](https://github.com/Gentleman-Programming/gentle-shell/blob/54548321be8c8d60891e89ea13bf2b0ed10e1ac5/docs/delegated-verification.md).
 
-## 6. SDD: la alternativa formal
+## 6. SDD: the formal alternative
 
-Se elige cuando se desean artefactos separados y coordinación formal. No es una categoría de complejidad superior obligatoria.
+Choose SDD when separate approvable artifacts and formal phase coordination are desired. It is not a mandatory higher complexity tier.
 
 ```mermaid
 flowchart TD
-    A[SDD solicitado] --> B[Explorar e investigar si procede]
-    B --> C[Propuesta]
-    C --> D{¿Propuesta aprobada?}
+    A[SDD requested] --> B[Explore and research when needed]
+    B --> C[Proposal]
+    C --> D{Proposal approved?}
     D -->|No| B
-    D -->|Sí| E[Spec: requisitos y escenarios]
-    E --> F[Diseño y decisiones]
-    F --> G[Tareas ordenadas]
-    G --> H[Apply con TDD configurado]
-    H --> I{¿Solicitar Verify?}
-    I -->|Sí| J[Informe de evidencia y faltantes]
-    I -->|No| K[Archivar estado real cuando se elija]
+    D -->|Yes| E[Spec: requirements and scenarios]
+    E --> F[Design and decisions]
+    F --> G[Ordered tasks]
+    G --> H[Apply with configured TDD]
+    H --> I{Request Verify?}
+    I -->|Yes| J[Evidence and gap report]
+    I -->|No| K[Archive actual state when selected]
     J --> K
-    K --> L[Entrega por política ordinaria]
+    K --> L[Delivery under ordinary policy]
 ```
 
-Verify es opcional y puede evaluar trabajo parcial. Archive registra verdad e historial, incluso trabajo inconcluso si se pide archivarlo; no exige un certificado de verificación ni transforma pendientes en tareas completas. SDD no lanza RDD ni consume sus resultados como puerta de archivo.
+Verify is optional and may evaluate partial work. Archive records truth and history, including incomplete work when explicitly requested; it does not require a verification certificate or turn pending work into completed work. SDD does not launch RDD or consume RDD results as an archive gate.
 
-Fuente: [uso previsto y ciclo SDD](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/intended-usage.md).
+Source: [intended usage and SDD cycle](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/docs/intended-usage.md).
 
-## 7. Ejemplos prácticos
+## 7. Practical examples
 
-| Petición ilustrativa | Recorrido esperado | Qué demostrar |
+| Illustrative request | Expected route | Evidence to demonstrate |
 |---|---|---|
-| Corregir texto de ayuda | ODD pequeño, edición directa si ya se entiende | Texto correcto; si el contenido es realmente pasivo, lectura estructural. |
-| Corregir cálculo en un servicio | ODD; directo o delegado según lectura y edición | Caso del bug y regresiones; TDD si está configurado. |
-| Añadir exportación CSV respetando filtros | ODD sustancial, documento, exploración acotada y escritor | Filtros, escapado, resultado vacío, errores relevantes; revisión según candidato real. |
-| Cambiar permisos de acceso | Puede ser pequeño en líneas y alto en riesgo | Casos permitidos/denegados, evidencia de seguridad y revisión profunda. |
-| Rediseñar autenticación con documentos aprobables | SDD solo si se solicita | Propuesta, spec, diseño, tareas y evidencia de implementación. |
+| Correct help text | Small ODD; direct edit if already understood | Correct copy; structural readback when content is truly passive. |
+| Fix a service calculation | ODD; direct or delegated according to context | Bug case and regressions; TDD when configured. |
+| Add CSV export respecting filters | Substantial ODD with task document, bounded exploration, and writer | Filters, escaping, empty output, relevant errors, and review according to the real candidate. |
+| Change access permissions | Potentially few lines but high risk | Allowed and denied cases, security evidence, and deep review. |
+| Redesign authentication with approvable artifacts | SDD only when selected | Proposal, spec, design, tasks, and implementation evidence. |
 
-Son ejemplos de aplicación de las reglas, no resultados de ejecutar estos proyectos en Pi.
+These examples apply the reviewed rules; they are not results from executing these projects in Pi.
 
-## 8. Hallazgos de la validación
+## 8. Verified discrepancies
 
-| Tema | Diferencia observada | Cómo interpretarla |
+| Topic | Observed difference | Interpretation |
 |---|---|---|
-| RDD por defecto | README dice opt-in/apagado; código de `main`, pruebas y trigger-rules dicen ON sin preferencias | En esta revisión prevalece el código para describir `main`; comprobar el modo efectivo en la instalación real. |
-| Activación TDD | Skill general dice que tests existentes lo activan; worker y orquestador exigen configuración | No afirmar uniformidad. El flujo ODD descrito conserva elección explícita. |
-| Prueba RED | Worker exige fallo observado; módulo estricto permite inferirlo si falta la función | Hay una inconsistencia concreta que conviene corregir aguas arriba. |
-| Momento de revisión | Contrato general habla de candidato final; guía ODD nueva detalla commits y tramos acumulados | Aplicar instrucciones por ámbito y conservar `next_transition`; no reconstruir un flujo único desde README. |
-| Paridad Pi | Gentle AI y Gentle Shell entregan prompts por separado | Actualizar uno no prueba que el otro haya adoptado y ejecutado las mismas reglas. |
+| Default RDD mode | README says opt-in/off; reviewed `main` code, tests, and trigger rules say on without preferences | Use code to describe that reviewed revision and inspect the effective installed mode. |
+| TDD activation | General skill says existing tests enable it; worker and orchestrator require configuration | Do not claim uniformity; the documented ODD route preserves explicit resolution. |
+| RED evidence | Worker requires observed failure; strict module permits inference when the function is absent | This is a concrete upstream inconsistency. |
+| Review timing | General contract discusses a final candidate; newer ODD guide details commits and accumulated ranges | Apply scoped instructions and retain `next_transition`; do not reconstruct one universal flow from prose. |
+| Pi parity | Gentle AI and Gentle Shell ship prompts separately | Updating one does not prove the other adopted or executed the same rules. |
 
-Comandos de inspección para una instalación real, sin modificar su configuración:
+Read-only inspection commands for a real installation:
 
 ```bash
 gentle-ai review mode status --cwd <repo> --json
 gentle-ai review assess --cwd <repo> --json
 ```
 
-El segundo clasifica el candidato actual; no inicia revisión ni aprueba entrega. Para tramos de commits, se necesita una base real y `--committed-only`.
+The second command classifies the current candidate. It does not start review or approve delivery. Commit ranges require a real base and `--committed-only`.
 
-Fuentes del hallazgo principal: [README](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/README.md), [implementación del modo](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/cli/review_mode.go), [pruebas de default ON](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/reviewtransaction/rdd_mode_test.go).
+Sources: [README](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/README.md), [mode implementation](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/cli/review_mode.go), and [default-on tests](https://github.com/Gentleman-Programming/gentle-ai/blob/f0782af2803a8192477c18d2186795e9c9daa6c3/internal/reviewtransaction/rdd_mode_test.go).
 
-## 9. Valoración técnica
+## 9. Technical assessment
 
-La separación de responsabilidades es razonable: ODD reduce artefactos para el día a día, TDD puede reforzar construcción y RDD añade evidencia independiente proporcional. La recuperación por documento y memoria permite tareas largas sin convertirlas en SDD.
+The separation of responsibilities is coherent: ODD limits ceremony for daily work, TDD can strengthen construction, and RDD adds proportional independent evidence. Recovery through a task document and memory supports long work without turning every task into SDD.
 
-La principal debilidad observada es la deriva entre instrucciones, documentación y código. Para adoptar estas ideas conviene fijar versiones compatibles, establecer una fuente de verdad para configuración y riesgo, y comprobar recorridos reales: pequeño pasivo, medio con y sin TDD, alto riesgo, rechazo de revisión, fallo de memoria y reanudación. Esta recomendación es una valoración del análisis, no una capacidad certificada del producto.
+The main weakness is drift among instructions, documentation, and code. Adoption should pin compatible versions, establish one source of truth for configuration and risk, and exercise real journeys: small passive work, medium work with and without TDD, high risk, review decline, memory failure, and resumption. This is an assessment of reviewed evidence, not a certified product capability.
 
-## 10. Diagramas entregados y límites visuales
+## 10. Delivered diagrams and visual limits
 
-Se incluyen HTML autónomos de ODD, RDD y SDD, además de los cinco diagramas Mermaid de esta guía. Los HTML son vistas resumidas; las tablas y diagramas de esta guía detallan condiciones y rutas alternativas.
+The repository includes standalone ODD, RDD, and SDD HTML diagrams plus the Mermaid diagrams in this guide. The standalone views are summaries; the tables and Mermaid diagrams document alternate conditions and paths.
 
-Los tres HTML pasaron las nueve comprobaciones deterministas de Archify, sin errores ni advertencias de composición. La comprobación en navegador quedó sin ejecutar porque Chrome/Chromium no estaba disponible; no se afirma inspección visual. El candidato HTML de TDD no superó el umbral de legibilidad y no se entrega: su diagrama completo está en Mermaid en esta guía. Los controles del visor HTML están en inglés; el contenido está en español.
+The three delivered HTML diagrams passed all nine deterministic Archify checks with no composition errors or warnings. Browser inspection was not run in the original environment because Chrome/Chromium was unavailable, so no visual-browser claim is made. The TDD HTML candidate did not meet the legibility threshold and is not delivered; its complete flow remains in Mermaid above. Viewer controls and this guide are English. Archived rendered simulator assets may still contain Spanish on-screen copy and are labeled accordingly.
