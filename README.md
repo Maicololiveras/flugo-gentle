@@ -1,5 +1,9 @@
 # Gentle · Behind the session
 
+![Gentle Live — Pi terminal and live event observer, in the Gentleman theme](docs/assets/gentle-live-gentleman-cover.png)
+
+*Brand illustration in the Gentleman palette; not a runtime screenshot.*
+
 See the conversation and the observable handoffs behind Gentle AI, Gentle Shell and Pi. Switch EN/ES locally without extra model calls.
 
 ## Two live modes, English and Spanish
