@@ -37,6 +37,12 @@ Open the local URL and click **Start Pi**. Work in the embedded terminal while t
 
 The viewer adds no model calls. Pi/Gentle tasks retain their normal token usage; native responses remain in their original language.
 
+## Passive benchmarks (feature branch)
+
+Open **Benchmarks** for live request-hook counts, tool lifecycles, human interactions, SDK token/cost coverage, cache reads/writes, local history and explicit baseline comparison. The recorder makes **no additional LLM calls**. Optional Gentle child metrics are shown separately when exposed. Missing data stays unavailable; the UI does not manufacture savings.
+
+See [measurement definitions, caching formulas, historical import and the A/B protocol](live/BENCHMARKS.md). Use `feature/passive-benchmarks` to try this version; it is not merged into `main` or included in the `v1.0.0` tag.
+
 ## Gentle AI repository integration
 
 See [plugin staging](integrations/gentle-ai/README.md) and the [local-agent handoff](integrations/gentle-ai/LOCAL_AGENT_HANDOFF.md). The handoff includes remaining installer work, automated visual tests, real-session cases and acceptance evidence.

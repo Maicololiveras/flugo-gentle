@@ -35,7 +35,11 @@
       <span id="count">0 events</span>
     </nav>
 
-    <main id="main" class="workspace">
+    <nav class="view-tabs" role="tablist" aria-label="Views">
+      <button id="activityTab" role="tab" aria-selected="true" aria-controls="main" data-bench-label="Activity">Activity</button>
+      <button id="benchmarksTab" role="tab" aria-selected="false" aria-controls="benchmarksPanel" tabindex="-1" data-bench-label="Benchmarks">Benchmarks</button>
+    </nav>
+    <main id="main" class="workspace" role="tabpanel" aria-labelledby="activityTab">
       <section class="activity-panel" aria-labelledby="activityTitle">
         <div class="section-heading">
           <h1 id="activityTitle">Observable activity</h1>
@@ -76,10 +80,32 @@
       </aside>
     </main>
 
+    <section id="benchmarksPanel" class="bench-panel" role="tabpanel" aria-labelledby="benchmarksTab" data-raw hidden>
+      <div class="bench-heading"><div><small data-bench-label="Passive accounting">Passive accounting</small><h1>Benchmarks</h1><p data-bench-label="No additional LLM requests or tokens">No additional LLM requests or tokens</p></div><div><span id="benchmarkConnection"></span><p id="benchmarkStorage" role="status"></p></div></div>
+      <div class="bench-controls">
+        <label><span data-bench-label="Recording">Recording</span><select id="benchmarkSession"></select></label>
+        <label><span data-bench-label="Compare with">Compare with</span><select id="benchmarkBaseline"></select></label>
+        <button id="benchmarkJSON" data-bench-label="Export JSON">Export JSON</button><button id="benchmarkCSV" data-bench-label="Export CSV">Export CSV</button>
+      </div>
+      <p class="bench-muted" data-bench-label="Recordings from all local projects">Recordings from all local projects</p>
+      <label class="bench-confirm"><input type="checkbox" id="benchmarkComparable"><span data-bench-label="Confirm these recordings represent comparable tasks and outcomes.">Confirm these recordings represent comparable tasks and outcomes.</span></label>
+      <div id="benchmarkBody"></div>
+      <details class="bench-method" open><summary data-bench-label="Coverage and method">Coverage and method</summary>
+        <p data-bench-label="Parent figures cover recorded parent-visible events only. Child summaries appear separately when emitted. Invisible retries and activity before activation are unavailable."></p>
+        <p data-bench-label="Request hooks are not a guaranteed count of HTTP attempts. A tool request is not proof of execution. Closed prompts may include cancellations."></p>
+        <p data-bench-label="SDK usage can include default zeros. Missing fields are unavailable, not zero. Reasoning is already part of output; never add it twice."></p>
+        <p data-bench-label="Cost uses positive usage.cost.total values supplied by Pi; it is an SDK estimate, not an invoice. Zero costs may indicate subscription or missing pricing."></p>
+        <p data-bench-label="Reduction = (baseline − selected) / baseline × 100. Negative values mean increased usage. This does not prove causal savings. Cached tokens are reuse, not tokens saved."></p>
+        <p data-bench-label="Imported JSONL counts stored messages and tool results; request hooks, tool starts and interactive provenance are unavailable."></p>
+        <p data-bench-label="Local history saves numeric summaries only, without prompts, tool arguments or message content. Latest 200 recordings are listed; files are retained."></p>
+      </details>
+    </section>
     <footer><span id="time">READY</span><span>No additional model calls from this viewer</span><span>Gentle AI × Pi · observable events</span></footer>
   </div>
   <script src="/i18n.js"></script>
   <script src="/terminal.js"></script>
+  <script src="/benchmark-math.js"></script>
+  <script src="/benchmarks.js"></script>
   <script src="/app.js"></script>
 </body>
 </html>

@@ -3,13 +3,20 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Local live event visualizer for Pi and Gentle Shell",
-  "keywords": ["pi-package", "pi-extension", "gentle-ai", "live-observer"],
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "gentle-ai",
+    "live-observer"
+  ],
   "files": [
     "extensions",
     "lib",
     "web",
     "README.md",
-    "workspace.mjs"
+    "workspace.mjs",
+    "import-benchmarks.mjs",
+    "BENCHMARKS.md"
   ],
   "pi": {
     "extensions": [
@@ -21,7 +28,8 @@
     "demo": "node demo.mjs",
     "test:visual": "node qa/visual.mjs",
     "workspace": "node workspace.mjs",
-    "test:workspace": "node qa/workspace-smoke.mjs"
+    "test:workspace": "node qa/workspace-smoke.mjs",
+    "test:benchmarks:visual": "node qa/benchmarks.mjs"
   },
   "devDependencies": {
     "playwright": "1.62.1"

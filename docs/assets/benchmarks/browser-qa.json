@@ -1,0 +1,15 @@
+{
+  "mode": "synthetic browser QA; no real model calls",
+  "checks": [
+    "Live snapshot arrives through SSE; activity and benchmark panels switch",
+    "Equivalent synthetic baseline yields 20% reduction with explicit acknowledgement",
+    "Exported JSON matches the live snapshot",
+    "Spanish UI and 390px layout without page overflow",
+    "Keyboard tab navigation",
+    "Reconnect does not duplicate usage",
+    "No external requests; no page errors",
+    "Standalone HTML opens offline with an honest empty benchmark state"
+  ],
+  "errors": [],
+  "status": "passed"
+}

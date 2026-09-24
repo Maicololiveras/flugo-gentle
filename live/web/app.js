@@ -193,9 +193,10 @@ if(key&&location.protocol!=='file:'){
  for(const id of ['scenario','play','step','reset','speed'])$(id).disabled=true;
  $('connection').textContent='CONNECTING';$('notice').textContent='Live observable events · reply and approve actions in the Gentle terminal';$('prompt').textContent='Send a message in the Gentle terminal.';
  const feed=new EventSource(`/events?key=${encodeURIComponent(key)}`);
- feed.onopen=()=>{$('connection').textContent='LIVE · CONNECTED';$('connection').className='live';document.body.classList.remove('is-disconnected')};
+ feed.onopen=()=>{window.GentleBenchmarks?.connection(true);$('connection').textContent='LIVE · CONNECTED';$('connection').className='live';document.body.classList.remove('is-disconnected')};
+ feed.addEventListener('benchmarks',event=>{const payload=parseFeedData(event.data);if(payload)window.GentleBenchmarks?.receive(payload)});
  feed.addEventListener('mode',event=>{const payload=parseFeedData(event.data);if(!payload){$('notice').textContent='Ignored malformed observer mode data.';return}const mode=payload.mode;if(mode==='workspace'){$('connection').textContent='WORKSPACE · CONNECTED';document.body.classList.add('workspace-mode');window.startWorkspaceTerminal(key);}else if(mode!=='live'){$('connection').textContent='TEST FEED · SCRIPTED';$('notice').textContent='Synthetic integration test feed — not a real agent session'}});
  feed.addEventListener('gap',()=>{$('notice').textContent='Reconnected; older events exceeded the 500-event buffer.'});
  feed.onmessage=event=>{const payload=parseFeedData(event.data);if(payload)append(payload);else $('notice').textContent='Ignored a malformed observer event.'};
- feed.onerror=()=>{$('connection').textContent='DISCONNECTED · RETRYING';$('connection').className='';$('phase').textContent='NO LIVE SIGNAL';document.body.classList.add('is-disconnected');$('graph').querySelectorAll('animateMotion').forEach(element=>element.remove())};
+ feed.onerror=()=>{window.GentleBenchmarks?.connection(false);$('connection').textContent='DISCONNECTED · RETRYING';$('connection').className='';$('phase').textContent='NO LIVE SIGNAL';document.body.classList.add('is-disconnected');$('graph').querySelectorAll('animateMotion').forEach(element=>element.remove())};
 }

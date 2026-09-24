@@ -239,3 +239,7 @@ Validation now includes 11 passing Node tests, a passing nine-check synthetic Pl
 ## Visual acceptance
 
 From this directory run `npm install`, `npx playwright install chromium`, then `npm run test:visual`. Inspect `qa-artifacts/` screenshots, recordings and report. These tests use a **synthetic** feed and passed all nine current checks on Windows; they are not a substitute for the separately labeled real-task evidence. See the repository `VISUAL_QA_REPORT.md` and integration handoff for artifact classification and remaining cases.
+
+## Passive benchmarks
+
+The new **Benchmarks** tab keeps local numeric recordings, displays request hooks, tool execution and user interactions, and explains token, cache and cost coverage. It performs no additional LLM requests. See [BENCHMARKS.md](BENCHMARKS.md) for formulas, historical imports, limitations, exports and a reproducible Gentle AI A/B experiment. This functionality lives on `feature/passive-benchmarks`.
